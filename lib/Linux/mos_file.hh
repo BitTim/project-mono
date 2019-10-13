@@ -47,7 +47,7 @@ public:
 		return 0;
 	}
 
-	void draw_sprite(SDL_Renderer* renderer, int id, vec2 pos, mono_palette pal)
+	void draw_sprite(SDL_Renderer* renderer, int id, Vec2 pos, mono_palette pal)
 	{
 		for(int y = 0; y < 16; y++)
 		{

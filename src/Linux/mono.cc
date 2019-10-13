@@ -3,6 +3,7 @@
 
 #include "../../lib/Linux/mos_file.hh"
 #include "../../lib/Linux/mom_file.hh"
+#include "../../lib/Linux/player.hh"
 #include "../../lib/Linux/datatypes.hh"
 #include "../../lib/Linux/var.hh"
 
@@ -11,13 +12,16 @@ SDL_Renderer* renderer;
 SDL_Event event;
 bool quit = false;
 
+const Uint8 *key_state = SDL_GetKeyboardState(NULL);
+unsigned int last_time = 0, current_time = 0;
+
 Spritesheet tSprites;
 Spritesheet pSprites;
 mono_palette standard_palette = mono_palette(0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF);
 
 GameMap cMap;
-vec2f playerPosRaster(4.5f, 4.5f);
-vec2f playerOffset(0.0f, 0.0f);
+Player player;
+Vec2f playerDrawOffset(0.0f, 0.0f);
 
 //================================
 // Utility Funtions
@@ -50,6 +54,9 @@ void init()
 		quit = true;
 	}
 
+	//Init the player
+	player = Player(Vec2f(0.0f, 0.0f), 0.01f);
+
 	//Prepare the Window
 	iSDL_SetRenderDrawColor(renderer, standard_palette.bg);
 	SDL_RenderClear(renderer);
@@ -70,19 +77,33 @@ void exit()
 
 void update()
 {
+	//Check SDL Events
 	SDL_PollEvent(&event);
 	if(event.type == SDL_QUIT)
 	{
 		quit = true;
 		return;
 	}
+
+	//Check Button Input
+	//Movement X
+	if(key_state[SDL_SCANCODE_A] == 1) player.dir.x = -1;
+	if(key_state[SDL_SCANCODE_D] == 1) player.dir.x = 1;
+	if(key_state[SDL_SCANCODE_A] == 0 && key_state[SDL_SCANCODE_D] == 0) player.dir.x = 0;
+
+	//Movement Y
+	if(key_state[SDL_SCANCODE_W] == 1) player.dir.y = -1;
+	if(key_state[SDL_SCANCODE_S] == 1) player.dir.y = 1;
+	if(key_state[SDL_SCANCODE_W] == 0 && key_state[SDL_SCANCODE_S] == 0) player.dir.y = 0;
+
+	//Update the player
+	player.update();
 }
 
 void draw()
 {
-	playerOffset = cMap.draw_map(renderer, playerPosRaster, tSprites, standard_palette);
-	printf("OFFX: %f   OFFY: %f\n", playerOffset.x, playerOffset.y);
-	pSprites.draw_sprite(renderer, 0, gtop(vec2f(playerPosRaster.x - playerOffset.x, playerPosRaster.y - playerOffset.y)), standard_palette);
+	playerDrawOffset = cMap.draw_map(renderer, player.pos, tSprites, standard_palette);
+	player.draw_player(renderer, playerDrawOffset, pSprites, standard_palette);
 	SDL_RenderPresent(renderer);
 }
 
@@ -96,8 +117,13 @@ int main()
 
 	while(!quit)
 	{
-		update();
-		draw();
+		current_time = SDL_GetTicks();
+		if(current_time >= last_time + 1)
+		{
+			update();
+			draw();
+			last_time = current_time;
+		}
 	}
 
 	exit();

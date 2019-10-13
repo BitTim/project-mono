@@ -11,24 +11,24 @@ typedef uint16_t word;
 typedef uint32_t dword;
 typedef uint64_t qword;
 
-struct vec2
+struct Vec2
 {
 	int x;
 	int y;
 
-	vec2(int ix, int iy)
+	Vec2(int ix = 0, int iy = 0)
 	{
 		x = ix;
 		y = iy;
 	}
 };
 
-struct vec2f
+struct Vec2f
 {
 	float x;
 	float y;
 
-	vec2f(float ix, float iy)
+	Vec2f(float ix = 0.0f, float iy = 0.0f)
 	{
 		x = ix;
 		y = iy;
@@ -78,7 +78,7 @@ struct mono_palette
 	}
 };
 
-vec2f ptog(vec2 pix) { return vec2f(float(pix.x / _SPRITESIZE), float(pix.y / _SPRITESIZE)); }
-vec2 gtop(vec2f grid) { return vec2(int(grid.x * float(_SPRITESIZE)), int(grid.y * float(_SPRITESIZE))); }
+Vec2f ptog(Vec2 pix) { return Vec2f(float(pix.x / _SPRITESIZE), float(pix.y / _SPRITESIZE)); }
+Vec2 gtop(Vec2f grid) { return Vec2(int(grid.x * float(_SPRITESIZE)), int(grid.y * float(_SPRITESIZE))); }
 
 #endif //DATATYPES_H
