@@ -6,6 +6,7 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include "mos_file.hh"
+#include "mot_file.hh"
 
 class GameMap
 {
@@ -49,35 +50,53 @@ public:
 		return 0;
 	}
 
-	Vec2f draw_map(SDL_Renderer* renderer, Vec2f playerPosRaster, Spritesheet tile_sprites, mono_palette palette)
+	Vec2f draw_map(SDL_Renderer* renderer, Vec2f playerPosRaster, Tilelist tilelist, Spritesheet tile_sprites, mono_palette palette)
 	{
+		Vec2f playerOff;
+
 		//Calculate the most upper left and most lower right tile positions
-		Vec2f firstTile(playerPosRaster.x - float((_TILESPERSCREENWIDTH - 1) / 2), playerPosRaster.y - float((_TILESPERSCREENHEIGHT - 1) / 2));
+		Vec2f firstTile(playerPosRaster.x - float((_TILESPERSCREENWIDTH) / 2), playerPosRaster.y - float((_TILESPERSCREENHEIGHT) / 2));
 		Vec2f lastTile(firstTile.x + _TILESPERSCREENWIDTH, firstTile.y + _TILESPERSCREENHEIGHT);
 
 		//Calculate offsets
-		Vec2f playerOff(firstTile.x < 0 ? -firstTile.x : firstTile.x, firstTile.y < 0 ? -firstTile.y : firstTile.y);
+		if(firstTile.x < 0) playerOff.x = -firstTile.x;
+		if(firstTile.y < 0) playerOff.y = -firstTile.y;
+
+		if(lastTile.x > size[0] - 2) playerOff.x = -(lastTile.x - size[0] + 2);
+		if(lastTile.y > size[1] - 2 + _LASTYTILEVISIBILITY) playerOff.y = -(lastTile.y - size[1] + 2 - _LASTYTILEVISIBILITY);
+
 		Vec2f drawOff(playerPosRaster.x - floor(playerPosRaster.x), playerPosRaster.y - floor(playerPosRaster.y));
 
 		//Clamp draw offset
-		if(firstTile.x < 0 || lastTile.x >= size[0]) drawOff.x = 0;
-		if(firstTile.y < 0 || lastTile.y >= size[1]) drawOff.y = 0;
-
-		printf("PLAYER X: %f   Y: %f      OFF X: %f   Y:%f\n", playerPosRaster.x, playerPosRaster.y, playerOff.x, playerOff.y);
+		if(firstTile.x < 0 || lastTile.x >= size[0] - 2) drawOff.x = 0;
+		if(firstTile.y < 0 || lastTile.y >= size[1] - 2 + _LASTYTILEVISIBILITY) drawOff.y = 0;
 
 		//Clamp Camera to the map boundaries
 		if(firstTile.x < 0) firstTile.x = 0;
 		if(firstTile.y < 0) firstTile.y = 0;
 
-		if(lastTile.x >= size[0]) firstTile.x = size[0] - _TILESPERSCREENWIDTH;
-		if(lastTile.y >= size[1]) firstTile.y = size[1] - _TILESPERSCREENHEIGHT;
+		if(lastTile.x >= size[0] - 2) firstTile.x = size[0] - 2 - _TILESPERSCREENWIDTH;
+		if(lastTile.y >= size[1] - 2 + _LASTYTILEVISIBILITY)
+		{
+			firstTile.y = size[1] - 2 - _TILESPERSCREENHEIGHT + _LASTYTILEVISIBILITY;
+			drawOff.y = _LASTYTILEVISIBILITY;
+		}
 
 		//Draw tiles
-		for(int y = 0; y < _TILESPERSCREENHEIGHT + 2; y++)
+		for(int y = 0; y < _TILESPERSCREENHEIGHT + 1; y++)
 		{
-			for(int x = 0; x < _TILESPERSCREENWIDTH + 2; x++)
+			for(int x = 0; x < _TILESPERSCREENWIDTH + 1; x++)
 			{
-				tile_sprites.draw_sprite(renderer, tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x], gtop(Vec2f(x - drawOff.x, y - drawOff.y)), palette);
+				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), palette);
+			}
+		}
+
+		if(drawOff.y > 0 && lastTile.y < size[1] - 1)
+		{
+			int y = _TILESPERSCREENHEIGHT + 1;
+			for(int x = 0; x < _TILESPERSCREENWIDTH + 1; x++)
+			{
+				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), palette);
 			}
 		}
 
@@ -88,6 +107,8 @@ public:
 #endif /* end of include guard: MOM_H */
 
 /*
+NOTE: Map must be intendet size x + 2 and intended size y + 2 big, for prevention of segmentation faults
+
 File Structure:
 0x4D 0x4D																																				Header (MM)
 0x00 0x04																																				Map width (H Byte, L byte)
