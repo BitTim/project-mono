@@ -54,9 +54,7 @@ public:
 			tmp_tile.collision = (flags[0] >> 2) & 0x01 == 1 ? true : false;
 			tmp_tile.interactable = (flags[0] >> 1) & 0x01 == 1 ? true : false;
 			tmp_tile.destroyable = flags[0] & 0x01 == 1 ? true : false;
-
-			tmp_tile.collision = false;
-
+			
 			tiles.push_back(tmp_tile);
 		}
 		return 0;

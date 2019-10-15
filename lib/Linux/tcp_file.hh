@@ -34,10 +34,13 @@ public:
 		nPalettes = ((tmp_word[0] << 8) & 0xFF00) + (tmp_word[1] & 0xFF);
 		if(nPalettes == 0) return -1;
 
-		for(int i = 0; i < nPalettes; i++)
+		for(int n = 0; n < nPalettes; n++)
 		{
-			palette_file.read(tmp_col, 4);
-			tmp_palette.col[i] = iSDL_Color(tmp_col[0], tmp_col[1], tmp_col[2], tmp_col[3]);
+			for(int i = 0; i < 4; i++)
+			{
+				palette_file.read(tmp_col, 4);
+				tmp_palette.col[i] = iSDL_Color(tmp_col[0], tmp_col[1], tmp_col[2], tmp_col[3]);
+			}
 			palettes.push_back(tmp_palette);
 		}
 		return 0;

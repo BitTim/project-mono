@@ -12,7 +12,7 @@
 
 struct Sprite
 {
-	word data[32];
+	dword data[16];
 };
 
 class Spritesheet
@@ -25,6 +25,7 @@ public:
 	int load_file(const char* path)
 	{
 		char tmp_word[2];
+		char tmp_dword[4];
 		Sprite tmp_sprite;
 
 		std::ifstream sprite_file(path, std::ifstream::binary);
@@ -39,10 +40,10 @@ public:
 
 		for(int n = 0; n < nSprites; n++)
 		{
-			for(int i = 0; i < 32; i++)
+			for(int i = 0; i < 16; i++)
 			{
-				sprite_file.read(tmp_word, 2);
-				tmp_sprite.data[i] = ((tmp_word[0] << 8) & 0xFF00) + (tmp_word[1] & 0xFF);
+				sprite_file.read(tmp_dword, 4);
+				tmp_sprite.data[i] = (((tmp_dword[0] << 24) & 0xFF000000) + ((tmp_dword[1] << 16) & 0x00FF0000) + ((tmp_dword[2] << 8) & 0x0000FF00) + (tmp_dword[3] & 0x000000FF));
 			}
 			sprite_data.push_back(tmp_sprite);
 		}
@@ -55,7 +56,7 @@ public:
 		{
 			for(int x = 0; x < 16; x++)
 			{
-				iSDL_SetRenderDrawColor(renderer, pal.palettes[cPalette].col[(sprite_data[id].data[y] >> ((15 - x) * 2)) & 0x02]);
+				iSDL_SetRenderDrawColor(renderer, pal.palettes[cPalette].col[(sprite_data[id].data[y] >> (30 - (x * 2))) & 0x03]);
 				SDL_Rect pixel = iSDL_Rect((pos.x + x) * _PIXELSCALE, (pos.y + y) * _PIXELSCALE, _PIXELSCALE, _PIXELSCALE);
 				SDL_RenderFillRect(renderer, &pixel);
 			}

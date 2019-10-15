@@ -34,7 +34,7 @@ void init()
 {
 	//Initialize SDL
 	SDL_Init(SDL_INIT_EVERYTHING);
-	window = SDL_CreateWindow("Mono", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREENRES[0], _SCREENRES[1], _FULLSCREEN ? SDL_WINDOW_FULLSCREEN : 0);
+	window = SDL_CreateWindow("Tetra", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREENRES[0], _SCREENRES[1], _FULLSCREEN ? SDL_WINDOW_FULLSCREEN : 0);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 
 	//Load Palettes
@@ -72,7 +72,7 @@ void init()
 	}
 
 	//Init the player
-	player = Player(Vec2f(3.0f, 1.0f), 0.01f);
+	player = Player(Vec2f(3.0f, 1.0f), 0.05f);
 
 	//Prepare the Window
 	iSDL_SetRenderDrawColor(renderer, palettelist.palettes[cPalette].col[0]);
