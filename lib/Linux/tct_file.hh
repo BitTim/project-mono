@@ -1,5 +1,5 @@
-#ifndef MOT_H
-#define MOT_H
+#ifndef TCT_H
+#define TCT_H
 
 #include <string>
 #include <vector>
@@ -34,7 +34,7 @@ public:
 		//Check if file is valid
 		tile_file.read(tmp_word, 2);
 		header = ((tmp_word[0] << 8) & 0xFF00) + (tmp_word[1] & 0xFF);
-		if(header != 0x4D54) return -1;
+		if(header != 0x5454) return -1;
 
 		//Get number of tiles
 		tile_file.read(tmp_word, 2);
@@ -63,12 +63,12 @@ public:
 	}
 };
 
-#endif //MOT_H
+#endif //TCT_H
 
 /*
 
 File Structure:
-0x4D 0x54																																				Header (MT)
+0x54 0x54																																				Header (TT)
 0x00 0x01																																				Num Tiles (H Byte, L Byte)
 
 0x00 0x01																																				Data 0, SpriteID

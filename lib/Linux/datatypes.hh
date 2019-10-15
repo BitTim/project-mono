@@ -60,24 +60,6 @@ void iSDL_SetRenderDrawColor(SDL_Renderer* renderer, SDL_Color col)
 	SDL_SetRenderDrawColor(renderer, col.r, col.g, col.b, col.a);
 }
 
-struct mono_palette
-{
-	SDL_Color fg;
-	SDL_Color bg;
-
-	mono_palette(SDL_Color c1, SDL_Color c2)
-	{
-		fg = c1;
-		bg = c2;
-	}
-
-	mono_palette(byte r1, byte g1, byte b1, byte a1, byte r2, byte g2, byte b2, byte a2)
-	{
-		fg = iSDL_Color(r1, g1, b1, a1);
-		bg = iSDL_Color(r2, g2, b2, a2);
-	}
-};
-
 Vec2f ptog(Vec2 pix) { return Vec2f(float(pix.x / _SPRITESIZE), float(pix.y / _SPRITESIZE)); }
 Vec2 gtop(Vec2f grid) { return Vec2(int(grid.x * float(_SPRITESIZE)), int(grid.y * float(_SPRITESIZE))); }
 

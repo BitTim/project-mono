@@ -1,9 +1,10 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 
-#include "../../lib/Linux/mos_file.hh"
-#include "../../lib/Linux/mom_file.hh"
-#include "../../lib/Linux/mot_file.hh"
+#include "../../lib/Linux/tcp_file.hh"
+#include "../../lib/Linux/tcs_file.hh"
+#include "../../lib/Linux/tcm_file.hh"
+#include "../../lib/Linux/tct_file.hh"
 #include "../../lib/Linux/player.hh"
 #include "../../lib/Linux/datatypes.hh"
 #include "../../lib/Linux/var.hh"
@@ -16,10 +17,10 @@ bool quit = false;
 const Uint8 *key_state = SDL_GetKeyboardState(NULL);
 unsigned int last_time = 0, current_time = 0;
 
+Palettelist palettelist;
+word cPalette = 0;
 Spritesheet tSprites;
 Spritesheet pSprites;
-mono_palette standard_palette = mono_palette(0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0xFF);
-
 GameMap cMap;
 Tilelist tilelist;
 Player player;
@@ -36,38 +37,45 @@ void init()
 	window = SDL_CreateWindow("Mono", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREENRES[0], _SCREENRES[1], _FULLSCREEN ? SDL_WINDOW_FULLSCREEN : 0);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 
-	//Load Spritesheets
-	if(tSprites.load_file("dat/tile_sprites.mos") == -1)
+	//Load Palettes
+	if(palettelist.load_file("dat/palettes.tcp") == -1)
 	{
-		printf("[F] Error 201: Failed to load spritesheet \"dat/tile_sprites.mos\"\n");
-		quit = true;
+		printf("[F] Error 201: Failed to load palettelist \"dat/palettes.tcp\"\n");
+		exit(-1);
 	}
 
-	if(pSprites.load_file("dat/player_sprites.mos") == -1)
+	//Load Spritesheets
+	if(tSprites.load_file("dat/tile_sprites.tcs") == -1)
 	{
-		printf("[F] Error 201: Failed to load spritesheet \"dat/player_sprites.mos\"\n");
-		quit = true;
+		printf("[F] Error 202: Failed to load spritesheet \"dat/tile_sprites.tcs\"\n");
+		exit(-1);
+	}
+
+	if(pSprites.load_file("dat/player_sprites.tcs") == -1)
+	{
+		printf("[F] Error 202: Failed to load spritesheet \"dat/player_sprites.tcs\"\n");
+		exit(-1);
 	}
 
 	//Load Map
-	if(cMap.load_file("dat/Maps/Test_01.mom") == -1)
+	if(cMap.load_file("dat/Maps/Test_01.tcm") == -1)
 	{
-		printf("[F] Error 202: Failed to load map \"dat/Maps/Test_01.mom\"\n");
-		quit = true;
+		printf("[F] Error 203: Failed to load map \"dat/Maps/Test_01.tcm\"\n");
+		exit(-1);
 	}
 
 	//Load Tilelist
-	if(tilelist.load_file("dat/tilelist.mot") == -1)
+	if(tilelist.load_file("dat/tilelist.tct") == -1)
 	{
-		printf("[F] Error 203: Failed to load tilelist \"dat/tilelist.mot\"\n");
-		quit = true;
+		printf("[F] Error 204: Failed to load tilelist \"dat/tilelist.tct\"\n");
+		exit(-1);
 	}
 
 	//Init the player
 	player = Player(Vec2f(3.0f, 1.0f), 0.01f);
 
 	//Prepare the Window
-	iSDL_SetRenderDrawColor(renderer, standard_palette.bg);
+	iSDL_SetRenderDrawColor(renderer, palettelist.palettes[cPalette].col[0]);
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
 }
@@ -111,8 +119,8 @@ void update()
 
 void draw()
 {
-	playerDrawOffset = cMap.draw_map(renderer, player.pos, tilelist, tSprites, standard_palette);
-	player.draw_player(renderer, playerDrawOffset, pSprites, standard_palette);
+	playerDrawOffset = cMap.draw_map(renderer, player.pos, tilelist, tSprites, palettelist, cPalette);
+	player.draw_player(renderer, playerDrawOffset, pSprites, palettelist, cPalette);
 	SDL_RenderPresent(renderer);
 }
 

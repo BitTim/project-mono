@@ -1,12 +1,14 @@
-#ifndef MOM_H
-#define MOM_H
+#ifndef TCM_H
+#define TCM_H
 
 #include <string>
 #include <vector>
 #include <fstream>
 #include <SDL2/SDL.h>
-#include "mos_file.hh"
-#include "mot_file.hh"
+
+#include "tcp_file.hh"
+#include "tcs_file.hh"
+#include "tct_file.hh"
 
 class GameMap
 {
@@ -25,7 +27,7 @@ public:
 		//Check if file is valid
 		map_file.read(tmp_word, 2);
 		header = ((tmp_word[0] << 8) & 0xFF00) + (tmp_word[1] & 0xFF);
-		if(header != 0x4D4D) return -1;
+		if(header != 0x544D) return -1;
 
 		//Get map size
 		map_file.read(tmp_word, 2);
@@ -50,7 +52,7 @@ public:
 		return 0;
 	}
 
-	Vec2f draw_map(SDL_Renderer* renderer, Vec2f playerPosRaster, Tilelist tilelist, Spritesheet tile_sprites, mono_palette palette)
+	Vec2f draw_map(SDL_Renderer* renderer, Vec2f playerPosRaster, Tilelist tilelist, Spritesheet tile_sprites, Palettelist pal, word cPalette)
 	{
 		Vec2f playerOff;
 
@@ -87,7 +89,7 @@ public:
 		{
 			for(int x = 0; x < _TILESPERSCREENWIDTH + 1; x++)
 			{
-				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), palette);
+				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), pal, cPalette);
 			}
 		}
 
@@ -96,7 +98,7 @@ public:
 			int y = _TILESPERSCREENHEIGHT + 1;
 			for(int x = 0; x < _TILESPERSCREENWIDTH + 1; x++)
 			{
-				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), palette);
+				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), pal, cPalette);
 			}
 		}
 
@@ -104,13 +106,13 @@ public:
 	}
 };
 
-#endif /* end of include guard: MOM_H */
+#endif /* end of include guard: TCM_H */
 
 /*
 NOTE: Map must be intendet size x + 2 and intended size y + 2 big, for prevention of segmentation faults
 
 File Structure:
-0x4D 0x4D																																				Header (MM)
+0x54 0x4D																																				Header (TM)
 0x00 0x04																																				Map width (H Byte, L byte)
 0x00 0x04																																				Map height (H Byte, L byte)
 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00																					Data  Row 0 (2 Bytes = 1 Tile)

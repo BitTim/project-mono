@@ -42,9 +42,9 @@ public:
 		if(pos.y < 0 || pos.y >= gamemap.size[1] - 3) pos.y -= dir.y * speed;
 	}
 
-	void draw_player(SDL_Renderer* renderer, Vec2f playerDrawOffset, Spritesheet pSprites, mono_palette palette)
+	void draw_player(SDL_Renderer* renderer, Vec2f playerDrawOffset, Spritesheet pSprites, Palettelist palette, word cPalette)
 	{
-		pSprites.draw_sprite(renderer, 0, gtop(Vec2f(float((_TILESPERSCREENWIDTH) / 2) - playerDrawOffset.x, float((_TILESPERSCREENHEIGHT) / 2) - playerDrawOffset.y)), palette);
+		pSprites.draw_sprite(renderer, 0, gtop(Vec2f(float((_TILESPERSCREENWIDTH) / 2) - playerDrawOffset.x, float((_TILESPERSCREENHEIGHT) / 2) - playerDrawOffset.y)), palette, cPalette);
 	}
 };
 
