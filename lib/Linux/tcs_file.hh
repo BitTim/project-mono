@@ -47,6 +47,7 @@ public:
 			}
 			sprite_data.push_back(tmp_sprite);
 		}
+		sprite_file.close();
 		return 0;
 	}
 
