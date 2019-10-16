@@ -80,7 +80,7 @@ void init()
 	SDL_RenderPresent(renderer);
 }
 
-void exit()
+void end()
 {
 	//Quit SDL
 	SDL_DestroyRenderer(renderer);
@@ -143,6 +143,6 @@ int main()
 		}
 	}
 
-	exit();
+	end();
 	return 0;
 }

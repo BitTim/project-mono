@@ -49,6 +49,7 @@ public:
 			tile_data.push_back(tmp_row);
 			tmp_row.clear();
 		}
+		map_file.close();
 		return 0;
 	}
 

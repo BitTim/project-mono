@@ -43,6 +43,8 @@ public:
 			}
 			palettes.push_back(tmp_palette);
 		}
+
+		palette_file.close();
 		return 0;
 	}
 };

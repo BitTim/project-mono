@@ -57,6 +57,8 @@ public:
 			
 			tiles.push_back(tmp_tile);
 		}
+
+		tile_file.close();
 		return 0;
 	}
 };
