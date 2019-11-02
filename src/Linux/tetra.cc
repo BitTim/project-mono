@@ -6,6 +6,7 @@
 #include "../../lib/Linux/tcm_file.hh"
 #include "../../lib/Linux/tct_file.hh"
 #include "../../lib/Linux/player.hh"
+#include "../../lib/Linux/gui.hh"
 #include "../../lib/Linux/datatypes.hh"
 #include "../../lib/Linux/var.hh"
 
@@ -21,6 +22,7 @@ Palettelist palettelist;
 word cPalette = 0;
 Spritesheet tSprites;
 Spritesheet pSprites;
+Spritesheet guiSprites;
 GameMap cMap;
 Tilelist tilelist;
 Player player;
@@ -54,6 +56,12 @@ void init()
 	if(pSprites.load_file("dat/player_sprites.tcs") == -1)
 	{
 		printf("[F] Error 202: Failed to load spritesheet \"dat/player_sprites.tcs\"\n");
+		exit(-1);
+	}
+
+	if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
+	{
+		printf("[F] Error 202: Failed to load spritesheet \"dat/gui_sprites.tcs\"\n");
 		exit(-1);
 	}
 

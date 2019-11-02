@@ -51,14 +51,14 @@ public:
 		return 0;
 	}
 
-	void draw_sprite(SDL_Renderer* renderer, int id, Vec2 pos, Palettelist pal, word cPalette)
+	void draw_sprite(SDL_Renderer* renderer, int id, Vec2 pos, Palettelist pal, word cPalette, int pixelscale = _PIXELSCALE)
 	{
 		for(int y = 0; y < 16; y++)
 		{
 			for(int x = 0; x < 16; x++)
 			{
 				iSDL_SetRenderDrawColor(renderer, pal.palettes[cPalette].col[(sprite_data[id].data[y] >> (30 - (x * 2))) & 0x03]);
-				SDL_Rect pixel = iSDL_Rect((pos.x + x) * _PIXELSCALE, (pos.y + y) * _PIXELSCALE, _PIXELSCALE, _PIXELSCALE);
+				SDL_Rect pixel = iSDL_Rect((pos.x + x) * pixelscale, (pos.y + y) * pixelscale, pixelscale, pixelscale);
 				SDL_RenderFillRect(renderer, &pixel);
 			}
 		}

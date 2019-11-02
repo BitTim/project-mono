@@ -1,13 +1,16 @@
 #include <iostream>
 #include <fstream>
 #include <SDL2/SDL.h>
+#include "../../lib/Linux/tcs_file.hh"
 #include "../../lib/Linux/tcp_file.hh"
+#include "../../lib/Linux/gui.hh"
 
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Event event;
 bool quit = false;
 
+Spritesheet guiSprites;
 Palettelist palettelist;
 std::ofstream outfile;
 
@@ -27,6 +30,13 @@ void init(const char* path)
   SDL_Init(SDL_INIT_EVERYTHING);
   window = SDL_CreateWindow("Tetra Sprite Editor", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 484, 0);
   renderer = SDL_CreateRenderer(window, -1, 0);
+
+  //Load Gui Sprites
+  if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
+	{
+		printf("[F] Error 202: Failed to load spritesheet \"dat/gui_sprites.tcs\"\n");
+		exit(-1);
+	}
 
   //Load Palettes
 	if(palettelist.load_file("dat/palettes.tcp") == -1)
@@ -133,6 +143,9 @@ void draw()
   //Clear Screen
   SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
   SDL_RenderClear(renderer);
+
+  //Draw MenuBar
+  drawMenuBar(renderer, 3, {"File", "Edit", "Help"}, 0, 16, guiSprites, palettelist);
 
   //Draw the canvas
   int w = 440 / 16;
