@@ -136,7 +136,7 @@ void draw()
 // Main Function
 //================================
 
-int main()
+int WinMain(int argv, char** args)
 {
 	init();
 

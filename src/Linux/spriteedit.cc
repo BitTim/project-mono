@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <SDL2/SDL.h>
-#include "../../lib/Linux/tcs_file.hh"
-#include "../../lib/Linux/tcp_file.hh"
-#include "../../lib/Linux/gui.hh"
+#include "../../lib/tcs_file.hh"
+#include "../../lib/tcp_file.hh"
+#include "../../lib/gui.hh"
 
 SDL_Window* window;
 SDL_Renderer* renderer;

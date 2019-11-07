@@ -2,6 +2,7 @@
 #define GUI_H
 
 #include <iostream>
+#include <cstring>
 #include <SDL2/SDL.h>
 
 #include "tcs_file.hh"
