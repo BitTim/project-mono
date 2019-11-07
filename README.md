@@ -5,4 +5,4 @@
 
 It is available as a Linux and as a Windows version.
 
-**Warning! Windows version has worse performance! I'd advise using the Linux version, if you can.
+***Warning! Windows version has worse performance! I'd advise using the Linux version, if you can.***
