@@ -33,7 +33,7 @@ void drawMenuBar(SDL_Renderer* renderer, int nEntries, char* entries[], int cEnt
 
         for(int j = 0; j < strlen(entries[i]); j++)
         {
-            guiSprites.drawSprite(char2sid(renderer, entries[i][j]), Vec2(posX, 0), pal, 1, height / 16);
+            guiSprites.draw_sprite(renderer, char2sid(entries[i][j]), Vec2(posX, 0), pal, 1, height / 16);
             posX += 16;
         }
 

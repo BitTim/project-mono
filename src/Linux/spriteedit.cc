@@ -32,11 +32,11 @@ void init(const char* path)
   renderer = SDL_CreateRenderer(window, -1, 0);
 
   //Load Gui Sprites
-  if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
+  /*if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
 	{
 		printf("[F] Error 202: Failed to load spritesheet \"dat/gui_sprites.tcs\"\n");
 		exit(-1);
-	}
+	}*/
 
   //Load Palettes
 	if(palettelist.load_file("dat/palettes.tcp") == -1)
@@ -49,6 +49,7 @@ void init(const char* path)
   char fullpath[100];
   sprintf(fullpath, "src-dat/%s.hex", path);
   outfile.open(fullpath, std::ofstream::binary);
+  printf("PATH: %s\n", fullpath);
 
   //Prepare the Window
 	SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
@@ -134,6 +135,10 @@ void update()
       }
 
       outfile.write(dataBlock, 64);
+
+      printf("Written data: \n");
+      for(int i = 0; i < 64; i++) printf("%02x ", dataBlock[i]);
+      printf("\n");
     }
   }
 }
@@ -145,7 +150,7 @@ void draw()
   SDL_RenderClear(renderer);
 
   //Draw MenuBar
-  drawMenuBar(renderer, 3, {"File", "Edit", "Help"}, 0, 16, guiSprites, palettelist);
+  //drawMenuBar(renderer, 3, {"File", "Edit", "Help"}, 0, 16, guiSprites, palettelist);
 
   //Draw the canvas
   int w = 440 / 16;

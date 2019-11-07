@@ -63,11 +63,11 @@ void iSDL_SetRenderDrawColor(SDL_Renderer* renderer, SDL_Color col)
 Vec2f ptog(Vec2 pix) { return Vec2f(float(pix.x / _SPRITESIZE), float(pix.y / _SPRITESIZE)); }
 Vec2 gtop(Vec2f grid) { return Vec2(int(grid.x * float(_SPRITESIZE)), int(grid.y * float(_SPRITESIZE))); }
 
-void char2sid(char c)
+int char2sid(char c)
 {
 	//Letters
-	if(c >= 0x41 && c <= 0x5A) c -= 0x41
-	if(c >= 0x61 && c <= 0x7A) c -= 0x61
+	if(c >= 0x41 && c <= 0x5A) c -= 0x41;
+	if(c >= 0x61 && c <= 0x7A) c -= 0x61;
 
 	//Umlaute
 	if(c == 0x84) c = 26;
@@ -78,11 +78,13 @@ void char2sid(char c)
 	if(c >= 0x30 && c <= 0x39) c -= 0x13;
 
 	//Symbols
-	if(c == 0x20) c = 39
+	if(c == 0x20) c = 39;
 	if(c == 0x2E) c = 40;
 	if(c == 0x2C) c = 41;
 	if(c == 0x21) c = 42;
 	if(c == 0x3F) c = 43;
+
+	return c;
 }
 
 #endif //DATATYPES_H

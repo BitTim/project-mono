@@ -36,7 +36,7 @@ void init(const char* path)
 		exit(-1);
 	}
 
-  //Open output file
+  //Open input file
   char fullpath[100];
   sprintf(fullpath, "src-dat/%s.hex", path);
   infile.open(fullpath, std::ofstream::binary);
