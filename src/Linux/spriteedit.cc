@@ -14,6 +14,8 @@ Spritesheet guiSprites;
 Palettelist palettelist;
 std::ofstream outfile;
 
+MenuBar menubar;
+
 int cColor = 0;
 int data[16][16];
 
@@ -32,11 +34,11 @@ void init(const char* path)
   renderer = SDL_CreateRenderer(window, -1, 0);
 
   //Load Gui Sprites
-  /*if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
+  if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
 	{
 		printf("[F] Error 202: Failed to load spritesheet \"dat/gui_sprites.tcs\"\n");
 		exit(-1);
-	}*/
+	}
 
   //Load Palettes
 	if(palettelist.load_file("dat/palettes.tcp") == -1)
@@ -52,9 +54,14 @@ void init(const char* path)
   printf("PATH: %s\n", fullpath);
 
   //Prepare the Window
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
   SDL_RenderClear(renderer);
   SDL_RenderPresent(renderer);
+
+  //Prepare GUI
+  std::vector<std::string> entries = {"FILE", "EDIT", "HELP"};
+  menubar = MenuBar(entries, 20);
 }
 
 void end()
@@ -150,7 +157,7 @@ void draw()
   SDL_RenderClear(renderer);
 
   //Draw MenuBar
-  //drawMenuBar(renderer, 3, {"File", "Edit", "Help"}, 0, 16, guiSprites, palettelist);
+  menubar.draw(renderer, -1, guiSprites, palettelist);
 
   //Draw the canvas
   int w = 440 / 16;

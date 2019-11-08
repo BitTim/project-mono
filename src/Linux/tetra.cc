@@ -83,6 +83,7 @@ void init()
 	player = Player(Vec2f(3.0f, 1.0f), 0.05f);
 
 	//Prepare the Window
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	iSDL_SetRenderDrawColor(renderer, palettelist.palettes[cPalette].col[0]);
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);

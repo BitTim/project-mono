@@ -42,6 +42,7 @@ void init(const char* path)
   infile.open(fullpath, std::ofstream::binary);
 
   //Prepare the Window
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
   SDL_RenderClear(renderer);
 
