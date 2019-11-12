@@ -17,6 +17,7 @@ public:
     std::vector<std::string> entries;
     int cEntry;
     int height;
+    bool visible = true;
 
     MenuBar() {  }
     MenuBar(std::vector<std::string> iEntires, int iHeight)
@@ -52,11 +53,13 @@ public:
             posX += 16;
         }
     }
-};
 
-void inHandle()
-{
-    
-}
+    void inHandle(Vec2 mousePos, bool clicked)
+    {
+        if(!visible) return;
+        if(mousePos.y > height) return;
+        
+    }
+};
 
 #endif // GUI_H
