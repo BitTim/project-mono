@@ -19,7 +19,7 @@ MenuBar menubar;
 int cColor = 0;
 int data[16][16];
 
-Vec2 mousepos;
+Vec2 mousepos = Vec2(-1, -1);
 Vec2 mouseposRaster;
 bool mousePressed = false;
 
@@ -61,7 +61,7 @@ void init(const char* path)
 
   //Prepare GUI
   std::vector<std::string> entries = {"FILE", "EDIT", "HELP"};
-  menubar = MenuBar(entries, 20);
+  menubar = MenuBar(entries, 16);
 }
 
 void end()
@@ -88,7 +88,7 @@ void update()
 
     if(mousepos.x >= 20 && mousepos.x <= 440 && mousepos.y >= 20 && mousepos.y <= 440)
     {
-       mouseposRaster = mousepos;
+      mouseposRaster = mousepos;
 
       mouseposRaster.x -= 20;
       mouseposRaster.y -= 20;
@@ -148,6 +148,8 @@ void update()
       printf("\n");
     }
   }
+
+  menubar.inHandle(mousepos, mousePressed);
 }
 
 void draw()
@@ -157,7 +159,7 @@ void draw()
   SDL_RenderClear(renderer);
 
   //Draw MenuBar
-  menubar.draw(renderer, -1, guiSprites, palettelist);
+  menubar.draw(renderer, guiSprites, palettelist);
 
   //Draw the canvas
   int w = 440 / 16;
