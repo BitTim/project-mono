@@ -60,7 +60,7 @@ void init(const char* path)
   SDL_RenderPresent(renderer);
 
   //Prepare GUI
-  std::vector<std::string> entries = {"FILE", "EDIT", "HELP"};
+  std::vector<std::vector<std::string>> entries = {{"FILE", "HELP"}, {"NEW SPRITE", "NEW SPRITESHEET", "OPEN SPRITESHEET", "SAVE SPRITESHEET", "SAVE SPRITESHEET AS", "EXIT"}, {"ABOUT"}};
   menubar = MenuBar(entries, 16);
 }
 
@@ -158,9 +158,6 @@ void draw()
   SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
   SDL_RenderClear(renderer);
 
-  //Draw MenuBar
-  menubar.draw(renderer, guiSprites, palettelist);
-
   //Draw the canvas
   int w = 440 / 16;
   for(int y = 0; y < 16; y++)
@@ -212,8 +209,33 @@ void draw()
   SDL_Rect colorCursor = iSDL_Rect(480, 20 + cColor * 70, 144, 70);
   SDL_RenderDrawRect(renderer, &colorCursor);
 
+  //Draw MenuBar
+  menubar.draw(renderer, guiSprites, palettelist);
+
+  //Push drawn on screen
   SDL_RenderPresent(renderer);
 }
+
+//================================
+// Program Specific Functions
+//================================
+
+void newSprite() { };
+
+void newSpritesheet() { };
+
+void openSpritesheet() { };
+
+void saveSpritesheet() { };
+
+void saveSpritesheetAs() { };
+
+void exitDialog()
+{
+  quit = true;
+}
+
+void about() { };
 
 //================================
 // Main
