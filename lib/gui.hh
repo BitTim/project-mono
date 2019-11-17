@@ -15,6 +15,7 @@ class MenuBar
 {
 public:
     std::vector<std::string> entries;
+    std::vector<int> entryXPos;
     int cEntry = -1;
     int height;
     bool visible = true;
@@ -24,6 +25,12 @@ public:
     {
         entries = iEntires;
         height = iHeight;
+
+        for(int i = 0; i < entries.size(); i++)
+        {
+            if(i == 0) entryXPos.push_back(0);
+            else entryXPos.push_back(entryXPos[i - 1] + (entries[i - 1].length() * height + height));
+        }
     }
 
     void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
@@ -50,24 +57,22 @@ public:
                 posX += 16;
             }
 
+            guiSprites.draw_sprite(renderer, char2sid(' '), Vec2(posX, 0), pal, 1, height / 16);
             posX += 16;
         }
     }
 
     void inHandle(Vec2 mousePos, bool clicked)
     {
+        cEntry = -1;
+
         if(!visible) return;
         if(mousePos.y > height || height < 0) return;
-        
-        cEntry = -1;
 
         for(int i = 0; i < entries.size(); i++)
         {
-            if(i == 0) if(mousePos.x >= 0 && mousePos.x < entries[i].length() * height) cEntry = i;
-            if(mousePos.x >= entries[i - 1].length() * height && mousePos.x < entries[i].length() * height) cEntry = i;
+            if(mousePos.x >= entryXPos[i] && mousePos.x < entryXPos[i] + entries[i].length() * height + height) cEntry = i;
         }
-
-        printf("MousePos: %d %d   Active entry: %d\n", mousePos.x, mousePos.y, cEntry);
     }
 };
 
