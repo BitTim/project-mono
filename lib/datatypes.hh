@@ -11,6 +11,8 @@ typedef uint16_t word;
 typedef uint32_t dword;
 typedef uint64_t qword;
 
+typedef void(*onClickFunc)();
+
 struct Vec2
 {
 	int x;

@@ -19,6 +19,7 @@ class MenuList
 {
 public:
     std::vector<std::string> entries;
+    std::vector<onClickFunc> functions;
     int longestEntryLength = 0;
     int cEntry = -1;
     int menuPosX = 0;
@@ -26,7 +27,7 @@ public:
     bool visible = false;
 
     MenuList() {  }
-    MenuList(std::vector<std::string> iEntries, std::vector<void*> iFunctions, int iHeightPerEntry, int iMenuPosX)
+    MenuList(std::vector<std::string> iEntries, std::vector<onClickFunc> iFunctions, int iHeightPerEntry, int iMenuPosX)
     {
         entries = iEntries;
         heightPerEntry = iHeightPerEntry;
@@ -35,6 +36,7 @@ public:
         for(int i = 0; i < entries.size(); i++)
         {
             if(entries[i].length() > longestEntryLength) longestEntryLength = entries[i].length();
+            functions.push_back(iFunctions[i]);
         }
     }
 
@@ -76,9 +78,9 @@ public:
             if(mousePos.y >= heightPerEntry + (i * heightPerEntry) && mousePos.y < heightPerEntry + ((i + 1) * heightPerEntry)) cEntry = i;
         }
 
-        if(clicked)
+        if(clicked && cEntry != 1)
         {
-            
+            functions[cEntry]();
         }
     }
 };
@@ -98,7 +100,7 @@ public:
     bool visible = true;
 
     MenuBar() {  }
-    MenuBar(std::vector<std::vector<std::string>> iEntries, std::vector<std::vector<void*> iFunctions, int iHeight)
+    MenuBar(std::vector<std::vector<std::string>> iEntries, std::vector<std::vector<onClickFunc>> iFunctions, int iHeight)
     {
         entries = iEntries[0];
         height = iHeight;

@@ -24,6 +24,18 @@ Vec2 mouseposRaster;
 bool mousePressed = false;
 
 //================================
+// Function Templates
+//================================
+
+void newSprite();
+void newSpritesheet();
+void openSpritesheet();
+void saveSpritesheet();
+void saveSpritesheetAs();
+void exitDialog();
+void about();
+
+//================================
 // Utiliy Functions
 //================================
 
@@ -61,7 +73,8 @@ void init(const char* path)
 
   //Prepare GUI
   std::vector<std::vector<std::string>> entries = {{"FILE", "HELP"}, {"NEW SPRITE", "NEW SPRITESHEET", "OPEN SPRITESHEET", "SAVE SPRITESHEET", "SAVE SPRITESHEET AS", "EXIT"}, {"ABOUT"}};
-  menubar = MenuBar(entries, 16);
+  std::vector<std::vector<onClickFunc>> functions = {{newSprite, newSpritesheet, openSpritesheet, saveSpritesheet, saveSpritesheetAs, exitDialog}, {about}};
+  menubar = MenuBar(entries, functions, 16);
 }
 
 void end()
@@ -235,7 +248,7 @@ void exitDialog()
   quit = true;
 }
 
-void about() { };
+void about() { printf("This is a temporary about statement\n"); };
 
 //================================
 // Main
