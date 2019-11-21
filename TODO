@@ -1,0 +1,7 @@
+H [x] Finish the MenuList in the GUI library
+H [x] Add SimpleDialogBox to GUI library
+--Merge to experimental--
+H [ ] Update SpriteEditor to use Spritesheets
+H [ ] Create MapEditor
+L [ ] Create PaletteEditor
+--Merge to experimental--

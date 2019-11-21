@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <SDL2/SDL.h>
-#include "../../lib/Linux/tcp_file.hh"
-#include "../../lib/Linux/tcs_file.hh"
+#include "../../lib/tcp_file.hh"
+#include "../../lib/tcs_file.hh"
 
 SDL_Window* window;
 SDL_Renderer* renderer;
@@ -36,12 +36,13 @@ void init(const char* path)
 		exit(-1);
 	}
 
-  //Open output file
+  //Open input file
   char fullpath[100];
   sprintf(fullpath, "src-dat/%s.hex", path);
   infile.open(fullpath, std::ofstream::binary);
 
   //Prepare the Window
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 	SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
   SDL_RenderClear(renderer);
 

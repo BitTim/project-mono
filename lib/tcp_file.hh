@@ -47,6 +47,13 @@ public:
 		palette_file.close();
 		return 0;
 	}
+
+	void flipColors(int pID, int c1, int c2)
+	{
+		SDL_Color tmp_col = palettes[pID].col[c1];
+    palettes[pID].col[c1] = palettes[pID].col[c2];
+  	palettes[pID].col[c2] = tmp_col;
+	}
 };
 
 #endif //TCP_H
