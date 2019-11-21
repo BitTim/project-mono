@@ -26,7 +26,7 @@ public:
     bool visible = false;
 
     MenuList() {  }
-    MenuList(std::vector<std::string> iEntries, int iHeightPerEntry, int iMenuPosX)
+    MenuList(std::vector<std::string> iEntries, std::vector<void*> iFunctions, int iHeightPerEntry, int iMenuPosX)
     {
         entries = iEntries;
         heightPerEntry = iHeightPerEntry;
@@ -98,7 +98,7 @@ public:
     bool visible = true;
 
     MenuBar() {  }
-    MenuBar(std::vector<std::vector<std::string>> iEntries, int iHeight)
+    MenuBar(std::vector<std::vector<std::string>> iEntries, std::vector<std::vector<void*> iFunctions, int iHeight)
     {
         entries = iEntries[0];
         height = iHeight;
@@ -108,7 +108,7 @@ public:
             if(i == 0) entryXPos.push_back(0);
             else entryXPos.push_back(entryXPos[i - 1] + (entries[i - 1].length() * height + height));
 
-            MenuList tmp_menulist(iEntries[1 + i], iHeight, entryXPos[i]);
+            MenuList tmp_menulist(iEntries[1 + i], iFunctions[i], iHeight, entryXPos[i]);
             menus.push_back(tmp_menulist);
         }
     }

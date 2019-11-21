@@ -1,0 +1,6 @@
+Changes for next Merge with experimental:
+H [ ] Finish the MenuList in the GUI library
+H [ ] Add dialogBox to GUI library
+H [ ] Update SpriteEditor to use Spritesheets
+H [ ] Create MapEditor
+L [ ] Create PaletteEditor
