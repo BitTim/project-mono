@@ -162,4 +162,64 @@ public:
     }
 };
 
+//================================
+// Simple Dialog Box
+//================================
+
+class SimpleDialogBox
+{
+public:
+    std::string title;
+    std::string content;
+    int fontHeight;
+    Vec2 gridSize;
+    Vec2 pos;
+    bool visible;
+
+    SimpleDialogBox() { };
+    SimpleDialogBox(std::string iTitle, std::string iContent, int iFontHeight, Vec2 iGridSize = Vec2(20, 5), Vec2 iPos = Vec2(-1, -1))
+    {
+        title = iTitle;
+        content = iContent;
+        fontHeight = iFontHeight;
+        gridSize = iGridSize;
+
+        if(iPos.x == -1 || iPos.y == -1) pos = Vec2(_SCREENRES[0] / 2 - (gridSize.x * fontHeight) / 2, _SCREENRES[1] - gridSize.y * fontHeight);
+        else pos = iPos;
+    }
+
+    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+    {
+        if(!visible) return;
+
+        iSDL_SetRenderDrawColor(renderer, pal.palettes[1].col[2]);
+        SDL_Rect panel = iSDL_Rect(pos.x, pos.y, gridSize.x * fontHeight, gridSize.y * fontHeight);
+        SDL_RenderFillRect(renderer, &panel);
+
+        int contentIterator = 0;
+        pal.flipColors(1, 0, 2);
+
+        for(int i = 0; i < title.length(); i++) guiSprites.draw_sprite(renderer, char2sid(title[i]), Vec2(pos.x + (i * fontHeight), pos.y), pal, 1, fontHeight / 16);
+
+        for(int y = 2; y < gridSize.y; y++)
+        {
+            for(int x = 0; x < gridSize.x; x++)
+            {
+                if(contentIterator < content.length())
+                {
+                    if(content[contentIterator] == '\n')
+                    {
+                        contentIterator++;
+                        break;
+                    }
+                    
+                    guiSprites.draw_sprite(renderer, char2sid(content[contentIterator]), Vec2(pos.x + (x * fontHeight), pos.y + (y * fontHeight)), pal, 1, fontHeight / 16);
+                    contentIterator++;
+                }
+            }
+        }
+        pal.flipColors(1, 0, 2);
+    }
+};
+
 #endif // GUI_H

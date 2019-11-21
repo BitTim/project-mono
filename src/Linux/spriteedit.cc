@@ -15,6 +15,7 @@ Palettelist palettelist;
 std::ofstream outfile;
 
 MenuBar menubar;
+SimpleDialogBox dialogAbout;
 
 int cColor = 0;
 int data[16][16];
@@ -75,6 +76,8 @@ void init(const char* path)
   std::vector<std::vector<std::string>> entries = {{"FILE", "HELP"}, {"NEW SPRITE", "NEW SPRITESHEET", "OPEN SPRITESHEET", "SAVE SPRITESHEET", "SAVE SPRITESHEET AS", "EXIT"}, {"ABOUT"}};
   std::vector<std::vector<onClickFunc>> functions = {{newSprite, newSpritesheet, openSpritesheet, saveSpritesheet, saveSpritesheetAs, exitDialog}, {about}};
   menubar = MenuBar(entries, functions, 16);
+
+  dialogAbout = SimpleDialogBox("About", "This Program is created by\nBitTim and serves the purpose\nof creating sprites for\nProject Tetra", 16, Vec2(30, 6));
 }
 
 void end()
@@ -162,6 +165,7 @@ void update()
     }
   }
 
+  if(mousePressed && dialogAbout.visible) dialogAbout.visible = false;
   menubar.inHandle(mousepos, mousePressed);
 }
 
@@ -222,8 +226,9 @@ void draw()
   SDL_Rect colorCursor = iSDL_Rect(480, 20 + cColor * 70, 144, 70);
   SDL_RenderDrawRect(renderer, &colorCursor);
 
-  //Draw MenuBar
+  //Draw GUI
   menubar.draw(renderer, guiSprites, palettelist);
+  dialogAbout.draw(renderer, guiSprites, palettelist);
 
   //Push drawn on screen
   SDL_RenderPresent(renderer);
@@ -248,7 +253,10 @@ void exitDialog()
   quit = true;
 }
 
-void about() { printf("This is a temporary about statement\n"); };
+void about()
+{
+  dialogAbout.visible = true;
+}
 
 //================================
 // Main
