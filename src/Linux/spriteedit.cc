@@ -12,6 +12,8 @@ SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Event event;
 bool quit = false;
+bool mousePressed = false;
+Vec2 mousePos;
 
 Spritesheet guiSprites;
 Palettelist palettelist;
@@ -104,9 +106,12 @@ void update()
 {
     SDL_WaitEvent(&event);
     if(event.type == SDL_QUIT) quit = true;
+    if(event.type == SDL_MOUSEBUTTONDOWN) mousePressed = true;
+    if(event.type == SDL_MOUSEBUTTONUP) mousePressed = false;
 
-    textbox.focused = true;
-    textbox.inHandle(event, false, Vec2(0, 0));
+    SDL_GetMouseState(&mousePos.x, &mousePos.y);
+
+    textbox.inHandle(event, mousePressed, mousePos);
 }
 
 void draw()

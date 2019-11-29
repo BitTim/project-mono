@@ -234,7 +234,7 @@ public:
 	int maxInLength;
 	int inMode;             //0 = Text, 1 = Num Dec, 2 = Num Hex
 	Vec2 pos;
-    int cursorPos;
+    int cursorPos = 0;
 	std::string content;
 	bool visible = true;
     bool focused = false;
@@ -247,7 +247,7 @@ public:
 		height = iHeight;
 		maxInLength = iMaxInLength;
 
-        content.assign(maxInLength, '\0');
+        content.resize(maxInLength, '\0');
 	}
 
 	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
@@ -262,12 +262,12 @@ public:
         //Draw Content
         for(int i = 0; i < maxInLength; i++)
         {
-            if(i >= content.length()) break;
-            guiSprites.draw_sprite(renderer, char2sid(content[i]), pos, pal, 1, height / 16);
+            if(content[i] == '\0') break;
+            guiSprites.draw_sprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), pal, 1, height / 16);
         }
 
         //Draw Border
-        iSDL_SetRenderDrawColor(renderer, pal.palettes[1].col[1]);
+        iSDL_SetRenderDrawColor(renderer, focused ? pal.palettes[1].col[3] : pal.palettes[1].col[2]);
 		SDL_RenderDrawRect(renderer, &panel);
 	}
 
@@ -285,15 +285,17 @@ public:
 
         if(event.type == SDL_KEYDOWN)
         {
-            content[cursorPos++] = event2char(event, inMode);
-            if(cursorPos > maxInLength - 1) cursorPos--;
+            char tmpchr = event2char(event, inMode);
+            if(cursorPos < maxInLength && tmpchr != '\0') content[cursorPos++] = tmpchr;
 
-            if(event.key.keysym.sym == SDLK_BACKSPACE) content[cursorPos--] = '\0';
-            if(event.key.keysym.sym == SDLK_RIGHT) cursorPos++;
-            if(event.key.keysym.sym == SDLK_LEFT) cursorPos--;
+            if(event.key.keysym.sym == SDLK_BACKSPACE)
+            {
+                cursorPos -= 1;
+                content[cursorPos] = '\0';
+            }
 
-            if(cursorPos > maxInLength - 1) cursorPos--;
-            if(cursorPos < 0) cursorPos++;
+            if(cursorPos > maxInLength) cursorPos = maxInLength;
+            if(cursorPos < 0) cursorPos = 0;
         }
     }
 };
