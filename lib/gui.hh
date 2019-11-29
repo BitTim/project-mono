@@ -10,6 +10,7 @@
 #include "tcs_file.hh"
 #include "datatypes.hh"
 #include "var.hh"
+#include "keyin.hh"
 
 //================================
 // Menu List
@@ -231,8 +232,9 @@ class TextBox
 public:
 	int height;
 	int maxInLength;
-	int inMode;
+	int inMode;             //0 = Text, 1 = Num Dec, 2 = Num Hex
 	Vec2 pos;
+    int cursorPos;
 	std::string content;
 	bool visible = true;
     bool focused = false;
@@ -244,6 +246,8 @@ public:
 		pos = iPos;
 		height = iHeight;
 		maxInLength = iMaxInLength;
+
+        content.assign(maxInLength, '\0');
 	}
 
 	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
@@ -259,7 +263,7 @@ public:
         for(int i = 0; i < maxInLength; i++)
         {
             if(i >= content.length()) break;
-            guiSprites.draw_sprite(renderer, char2sid(content[i], pos, pal, 1, height / 16));
+            guiSprites.draw_sprite(renderer, char2sid(content[i]), pos, pal, 1, height / 16);
         }
 
         //Draw Border
@@ -267,11 +271,30 @@ public:
 		SDL_RenderDrawRect(renderer, &panel);
 	}
 
-    void inHandle(SDL_Event event)
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
     {
         if(!visible) return;
 
-        if(event.type == SDL_MOUSE)
+        if(mousePressed)
+        {
+            if(mousePos.x >= pos.x && mousePos.x < pos.x + height * maxInLength && mousePos.y >= pos.y && mousePos.y < pos.y + height) focused = true;
+            else focused = false;
+        }
+
+        if(!focused) return;
+
+        if(event.type == SDL_KEYDOWN)
+        {
+            content[cursorPos++] = event2char(event, inMode);
+            if(cursorPos > maxInLength - 1) cursorPos--;
+
+            if(event.key.keysym.sym == SDLK_BACKSPACE) content[cursorPos--] = '\0';
+            if(event.key.keysym.sym == SDLK_RIGHT) cursorPos++;
+            if(event.key.keysym.sym == SDLK_LEFT) cursorPos--;
+
+            if(cursorPos > maxInLength - 1) cursorPos--;
+            if(cursorPos < 0) cursorPos++;
+        }
     }
 };
 
