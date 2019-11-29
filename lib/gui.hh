@@ -240,13 +240,14 @@ public:
     bool focused = false;
 
 	TextBox() { }
-	TextBox(int iInMode, Vec2 iPos, int iHeight = 16, int iMaxInLength = 10)
+	TextBox(int iInMode, Vec2 iPos, std::string iContent = "\0", int iMaxInLength = 10, int iHeight = 16)
 	{
 		inMode = iInMode;
 		pos = iPos;
 		height = iHeight;
 		maxInLength = iMaxInLength;
 
+        content = iContent;
         content.resize(maxInLength, '\0');
 	}
 
@@ -298,6 +299,38 @@ public:
             if(cursorPos < 0) cursorPos = 0;
         }
     }
+};
+
+//================================
+// Label
+//================================
+
+class Label
+{
+public:
+	int height;
+	Vec2 pos;
+	std::string content;
+	bool visible = true;
+
+	Label() { }
+	Label(std::string iContent, Vec2 iPos, int iHeight = 16)
+	{
+		content = iContent;
+        pos = iPos;
+        height = iHeight;
+	}
+
+	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+	{
+		if(!visible) return;
+        
+        //Draw Content
+        for(int i = 0; i < content.length(); i++)
+        {
+            guiSprites.draw_sprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), pal, 1, height / 16);
+        }
+	}
 };
 
 #endif // GUI_H

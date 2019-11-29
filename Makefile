@@ -7,5 +7,5 @@ tetra_win: src/Windows/tetra.cc lib/*.hh
 spriteedit_linux: src/Linux/spriteedit.cc lib/*.hh
 	g++ -o bin/Linux/spriteedit -lSDL2 $<
 
-spriteview_linux: src/Linux/spriteview.cc lib/*.hh
-	g++ -o bin/Linux/spriteview -lSDL2 $<
+paletteedit_linux: src/Linux/paletteedit.cc lib/*.hh
+	g++ -o bin/Linux/paletteedit -lSDL2 $<

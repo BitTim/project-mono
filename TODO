@@ -1,7 +1,8 @@
 H [x] Finish the MenuList in the GUI library
 H [x] Add SimpleDialogBox to GUI library
 --Merge to experimental--
-H [ ] Add TextBox Element to GUI library
+H [x] Add TextBox Element to GUI library
+H [x] Add Label Element to GUI library
 H [ ] Add TextButton Element to GUI library
 H [ ] Add SpriteButton Element to GUI library
 --Merge to experimental--
