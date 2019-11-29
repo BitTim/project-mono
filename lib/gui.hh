@@ -222,4 +222,57 @@ public:
     }
 };
 
+//================================
+// TextBox
+//================================
+
+class TextBox
+{
+public:
+	int height;
+	int maxInLength;
+	int inMode;
+	Vec2 pos;
+	std::string content;
+	bool visible = true;
+    bool focused = false;
+
+	TextBox() { }
+	TextBox(int iInMode, Vec2 iPos, int iHeight = 16, int iMaxInLength = 10)
+	{
+		inMode = iInMode;
+		pos = iPos;
+		height = iHeight;
+		maxInLength = iMaxInLength;
+	}
+
+	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+	{
+		if(!visible) return;
+
+        //Draw Background
+        iSDL_SetRenderDrawColor(renderer, pal.palettes[1].col[2]);
+        SDL_Rect panel = iSDL_Rect(pos.x, pos.y, maxInLength * height, height);
+        SDL_RenderFillRect(renderer, &panel);
+
+        //Draw Content
+        for(int i = 0; i < maxInLength; i++)
+        {
+            if(i >= content.length()) break;
+            guiSprites.draw_sprite(renderer, char2sid(content[i], pos, pal, 1, height / 16));
+        }
+
+        //Draw Border
+        iSDL_SetRenderDrawColor(renderer, pal.palettes[1].col[1]);
+		SDL_RenderDrawRect(renderer, &panel);
+	}
+
+    void inHandle(SDL_Event event)
+    {
+        if(!visible) return;
+
+        if(event.type == SDL_MOUSE)
+    }
+};
+
 #endif // GUI_H

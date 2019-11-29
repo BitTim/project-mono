@@ -28,7 +28,8 @@ void close();
 
 void removeSprite();
 void changePalette();
-void 
+
+void about();
 
 //================================
 // Utility Functions
@@ -70,7 +71,17 @@ void end()
 // onClick Functions
 //================================
 
+void newSprite() { }
+void newSpriteshet() { }
+void openSpritesheet() { }
+void saveSpritesheet() { }
+void saveSpritesheetAs() { }
+void close() { }
 
+void removeSprite() { }
+void changePalette() { }
+
+void about() { }
 
 //================================
 // Repeating Functions
