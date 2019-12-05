@@ -90,7 +90,7 @@ public:
 		{
 			for(int x = 0; x < _TILESPERSCREENWIDTH + 1; x++)
 			{
-				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), pal, cPalette);
+				tile_sprites.drawSprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), pal, cPalette);
 			}
 		}
 
@@ -99,7 +99,7 @@ public:
 			int y = _TILESPERSCREENHEIGHT + 1;
 			for(int x = 0; x < _TILESPERSCREENWIDTH + 1; x++)
 			{
-				tile_sprites.draw_sprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), pal, cPalette);
+				tile_sprites.drawSprite(renderer, tilelist.tiles[tile_data[floor(firstTile.y) + y][floor(firstTile.x) + x]].spriteID, gtop(Vec2f(x - drawOff.x, y - drawOff.y)), pal, cPalette);
 			}
 		}
 

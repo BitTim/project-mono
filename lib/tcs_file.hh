@@ -51,7 +51,7 @@ public:
 		return 0;
 	}
 
-	void draw_sprite(SDL_Renderer* renderer, int id, Vec2 pos, Palettelist pal, word cPalette, int pixelscale = _PIXELSCALE)
+	void drawSprite(SDL_Renderer* renderer, int id, Vec2 pos, Palettelist pal, word cPalette, int pixelscale = _PIXELSCALE)
 	{
 		for(int y = 0; y < 16; y++)
 		{

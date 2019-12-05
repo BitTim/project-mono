@@ -207,7 +207,10 @@ void draw()
     }
 
     //Draw Sample Sprite
-    pSprites.draw_sprite(renderer, 0, Vec2(23, 3), cPalettelist, cPaletteID, 16);
+    pSprites.drawSprite(renderer, 0, Vec2(23, 3), cPalettelist, cPaletteID, 16);
+
+    //Draw Palletelist
+    SDL_Rect 
 
     SDL_RenderPresent(renderer);
 }
