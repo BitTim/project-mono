@@ -16,6 +16,7 @@
 // | Current GUI classes:           |
 // | - Plane                        |
 // | - TextBox                      |
+// | - TextButton                   |
 // | - Label                        |
 // +--------------------------------+
 
@@ -31,6 +32,8 @@
 // | layer 0:                       |
 // | - TextBox                      |
 // +--------------------------------+
+
+bool primary_visible = false;
 
 //================================
 // Plane
@@ -76,7 +79,6 @@ public:
 // in a UI Element on a higher
 // Layer
 //================================
-
 class TextBox
 {
 public:
@@ -132,6 +134,11 @@ public:
     {
         if(!visible) return;
         if(guiLayer == 0) return;
+        if(primary_visible && guiLayer != 2)
+        {
+            focused = false;
+            return;
+        }
 
         if(mousePressed)
         {
@@ -140,6 +147,8 @@ public:
         }
 
         if(!focused) return;
+        if(focused && guiLayer == 2) primary_visible = true;
+        if(!focused && guiLayer == 2) primary_visible = false;
 
         if(event.type == SDL_KEYDOWN)
         {
@@ -159,6 +168,20 @@ public:
 };
 
 //================================
+// TextButton
+//================================
+// Default guiLayer: 1
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class TextButton
+{
+public:
+    TextBox() { }
+};
+
+//================================
 // Label
 //================================
 // Default guiLayer: 0
@@ -166,31 +189,33 @@ public:
 // in a UI Element on a higher
 // Layer
 //================================
-
 class Label
 {
 public:
 	int height;
 	Vec2 pos;
+    byte guiPaletteID;
 	std::string content;
 	bool visible = true;
 
 	Label() { }
-	Label(std::string iContent, Vec2 iPos, int iHeight = 16)
+	Label(std::string iContent, Vec2 iPos, byte iGuiPaletteID, int iHeight = 16)
 	{
 		content = iContent;
         pos = iPos;
         height = iHeight;
+
+        guiPaletteID = iGuiPaletteID;
 	}
 
-	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist guiPalettes)
 	{
 		if(!visible) return;
         
         //Draw Content
         for(int i = 0; i < content.length(); i++)
         {
-            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), pal, 1, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
         }
 	}
 };

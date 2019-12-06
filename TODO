@@ -12,10 +12,10 @@ H [ ] Add fundamental UI Elements
   [x] - Add Plane
   [ ] - Add TextButton
   [ ] - Add SpriteButton
-H [ ] Refactor the GUI engine to work with 3 Planes:
+H [x] Refactor the GUI engine to work with 3 Planes:
   [x] - Static (Background)
-  [ ] - Dynamic (Common UI Elements)
-  [ ] - Primary Dynamic (Foreground, overlap dynamic elements)
+  [x] - Dynamic (Common UI Elements)
+  [x] - Primary Dynamic (Foreground, overlap dynamic elements)
 --Merge to experimental--
 H [ ] Create SpriteEditor
 H [ ] Create MapEditor
