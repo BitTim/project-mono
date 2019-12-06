@@ -178,7 +178,13 @@ public:
 class TextButton
 {
 public:
-    TextBox() { }
+    Vec2 pos;
+    Vec2 
+    std::string text;
+    byte guiLayer;
+    bool visible;
+
+    TextButton() { }
 };
 
 //================================
