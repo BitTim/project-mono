@@ -179,12 +179,122 @@ class TextButton
 {
 public:
     Vec2 pos;
-    Vec2 
     std::string text;
+    int height;
     byte guiLayer;
+    byte guiPaletteID;
     bool visible;
+    bool pressed;
+    void (*onClick)();
 
     TextButton() { }
+    TextButton(byte iGuiLayer, Vec2 iPos, std::string iText, void (*iOnClick)(), byte iGuiPaletteID, int iHeight)
+    {
+        guiLayer = iGuiLayer;
+        pos = iPos;
+        text = iText;
+        guiPaletteID = iGuiPaletteID;
+
+        height = iHeight;
+        onClick = iOnClick;
+    }
+
+    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist guiPalettes)
+    {
+        if(!visible) return;
+
+        //Draw Background
+        Panel background(pos, Vec2(text.length() * heigth, height), pressed ? 3 : 2, guiPaletteID);
+        background.draw(renderer, guiPalettes);
+
+        //Draw Content
+        for(int i = 0; i < text.length(); i++)
+        {
+            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), pal, 1, height / 16);
+        }
+    }
+
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
+    {
+        if(!visible) return;
+        if(guiLayer == 0) return;
+        if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePressed)
+        {
+            if(mousePos.x > pos.x && mousePos.x < pos.x + text.length() * height && mousePos.y > pos.y && mousePos.y < pos.y + height)
+            {
+                pressed = true;
+                (*onClick)();
+            }
+        } 
+
+        if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
+    }
+};
+
+//================================
+// SpriteButton
+//================================
+// Default guiLayer: 1
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class SpriteButton
+{
+public:
+    Vec2 pos;
+    int height;
+    byte guiLayer;
+    Spritesheet sprites;
+    int normalSprite;
+    int pressedSprite;
+    int normalColorID;
+    int pressedColorID;
+    bool visible;
+    bool pressed;
+    void (*onClick)();
+
+    TextButton() { }
+    TextButton(byte iGuiLayer, Vec2 iPos, Spritesheet iSprites, int iNormalSPrite, int iPressedSprite, int iNormalColorID, int iPressedColorID, void (*iOnClick)(), int iHeight)
+    {
+        guiLayer = iGuiLayer;
+        pos = iPos;
+        sprites = iSprites;
+        normalSprite = iNormalSPrite;
+        pressedSprite = iPressedSprite;
+        normalColorID = iNormalSPrite;
+        pressedColorID = iPressedColorID;
+
+        height = iHeight;
+        onClick = iOnClick;
+    }
+
+    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+    {
+        if(!visible) return;
+
+        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, pos, pal, pressed ? pressedColorID : normalColorID, height / 16);
+    }
+
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
+    {
+        if(!visible) return;
+        if(guiLayer == 0) return;
+        if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePressed)
+        {
+            if(mousePos.x > pos.x && mousePos.x < pos.x + text.length() * height && mousePos.y > pos.y && mousePos.y < pos.y + height)
+            {
+                pressed = true;
+                (*onClick)();
+            }
+        } 
+
+        if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
+    }
 };
 
 //================================

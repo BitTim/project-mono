@@ -10,7 +10,7 @@ H [x] Remove UI elements, which consist of nonexisting simpler pieces
   [x] - Remove TextBoxDialogBox
 H [ ] Add fundamental UI Elements
   [x] - Add Plane
-  [ ] - Add TextButton
+  [x] - Add TextButton
   [ ] - Add SpriteButton
 H [x] Refactor the GUI engine to work with 3 Planes:
   [x] - Static (Background)
