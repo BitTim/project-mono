@@ -9,3 +9,6 @@ spriteedit_linux: src/Linux/spriteedit.cc lib/*.hh
 
 paletteedit_linux: src/Linux/paletteedit.cc lib/*.hh
 	g++ -o bin/Linux/paletteedit -lSDL2 $<
+
+guitest_linux: src/Linux/guitest.cc lib/*.hh
+	g++ -o bin/Linux/guitest -lSDL2 $<

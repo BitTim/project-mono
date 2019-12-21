@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
-#include "var.hh"
-
 typedef uint8_t byte;
 typedef uint16_t word;
 typedef uint32_t dword;
@@ -61,6 +59,8 @@ void iSDL_SetRenderDrawColor(SDL_Renderer* renderer, SDL_Color col)
 {
 	SDL_SetRenderDrawColor(renderer, col.r, col.g, col.b, col.a);
 }
+
+#include "var.hh"
 
 Vec2f ptog(Vec2 pix) { return Vec2f(float(pix.x / _SPRITESIZE), float(pix.y / _SPRITESIZE)); }
 Vec2 gtop(Vec2f grid) { return Vec2(int(grid.x * float(_SPRITESIZE)), int(grid.y * float(_SPRITESIZE))); }

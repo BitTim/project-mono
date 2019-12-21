@@ -17,6 +17,7 @@
 // | - Plane                        |
 // | - TextBox                      |
 // | - TextButton                   |
+// | - SpriteButton                 |
 // | - Label                        |
 // +--------------------------------+
 
@@ -43,7 +44,7 @@ bool primary_visible = false;
 // in a UI Element on a higher
 // Layer
 //================================
-class Plane
+class Panel
 {
 public:
     Vec2 size;
@@ -53,8 +54,8 @@ public:
     byte guiPaletteID;
     bool visible = true;
 
-    Plane() { }
-    Plane(Vec2 iSize, vec2 iPos, byte iColorID, byte iGuiPaletteID)
+    Panel() { }
+    Panel(Vec2 iPos, Vec2 iSize, byte iColorID, byte iGuiPaletteID)
     {
         size = iSize;
         pos = iPos;
@@ -68,8 +69,7 @@ public:
         SDL_Rect plane = iSDL_Rect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
         SDL_RenderFillRect(renderer, &plane);
     }
-
-}
+};
 
 //================================
 // TextBox
@@ -94,7 +94,7 @@ public:
     bool focused = false;
 
 	TextBox() { }
-	TextBox(byte iGuiLayer, byte iInMode, Vec2 iPos, byte iGuiPaletteID, std::string iContent = "\0", int iMaxInLength = 10, int iHeight = 16)
+	TextBox(byte iGuiLayer, Vec2 iPos, byte iInMode, byte iGuiPaletteID, int iMaxInLength = 10, int iHeight = 16, std::string iContent = "\0")
 	{
         guiLayer = iGuiLayer;
         if(guiLayer == 0) printf("[W] Warning: guiLayer set to 0 for \"TextBox\". This UI Element would never be focused\n");
@@ -115,19 +115,20 @@ public:
 		if(!visible) return;
 
         //Draw Background
-        Panel background(pos, Vec2(maxInLength * heigth, height), 2, guiPaletteID);
+        Panel background(pos, Vec2(0, 0), 2, guiPaletteID);
         background.draw(renderer, guiPalettes);
 
         //Draw Content
         for(int i = 0; i < maxInLength; i++)
         {
             if(content[i] == '\0') break;
-            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), pal, 1, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, 1, height / 16);
         }
 
         //Draw Border
-        iSDL_SetRenderDrawColor(renderer, focused ? pal.palettes[1].col[3] : pal.palettes[1].col[2]);
-		SDL_RenderDrawRect(renderer, &panel);
+        iSDL_SetRenderDrawColor(renderer, focused ? guiPalettes.palettes[1].col[3] : guiPalettes.palettes[1].col[2]);
+		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, pos.x, pos.y);
+        SDL_RenderDrawRect(renderer, &plane);
 	}
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
@@ -147,8 +148,8 @@ public:
         }
 
         if(!focused) return;
-        if(focused && guiLayer == 2) primary_visible = true;
-        if(!focused && guiLayer == 2) primary_visible = false;
+        if(visible && guiLayer == 2) primary_visible = true;
+        if(!visible && guiLayer == 2) primary_visible = false;
 
         if(event.type == SDL_KEYDOWN)
         {
@@ -183,12 +184,12 @@ public:
     int height;
     byte guiLayer;
     byte guiPaletteID;
-    bool visible;
+    bool visible = true;
     bool pressed;
     void (*onClick)();
 
     TextButton() { }
-    TextButton(byte iGuiLayer, Vec2 iPos, std::string iText, void (*iOnClick)(), byte iGuiPaletteID, int iHeight)
+    TextButton(byte iGuiLayer, Vec2 iPos, std::string iText, void (*iOnClick)(), byte iGuiPaletteID, int iHeight = 16)
     {
         guiLayer = iGuiLayer;
         pos = iPos;
@@ -204,13 +205,13 @@ public:
         if(!visible) return;
 
         //Draw Background
-        Panel background(pos, Vec2(text.length() * heigth, height), pressed ? 3 : 2, guiPaletteID);
+        Panel background(pos, Vec2(0, 0), pressed ? 3 : 2, guiPaletteID);
         background.draw(renderer, guiPalettes);
 
         //Draw Content
         for(int i = 0; i < text.length(); i++)
         {
-            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), pal, 1, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, 1, height / 16);
         }
     }
 
@@ -228,6 +229,9 @@ public:
                 (*onClick)();
             }
         } 
+
+        if(visible && guiLayer == 2) primary_visible = true;
+        if(!visible && guiLayer == 2) primary_visible = false;
 
         if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
     }
@@ -250,32 +254,32 @@ public:
     Spritesheet sprites;
     int normalSprite;
     int pressedSprite;
-    int normalColorID;
-    int pressedColorID;
-    bool visible;
+    int normalPaletteID;
+    int pressedPaletteID;
+    bool visible = true;
     bool pressed;
     void (*onClick)();
 
-    TextButton() { }
-    TextButton(byte iGuiLayer, Vec2 iPos, Spritesheet iSprites, int iNormalSPrite, int iPressedSprite, int iNormalColorID, int iPressedColorID, void (*iOnClick)(), int iHeight)
+    SpriteButton() { }
+    SpriteButton(byte iGuiLayer, Vec2 iPos, Spritesheet iSprites, int iNormalSprite, int iPressedSprite, int iNormalPaletteID, int iPressedPaletteID, void (*iOnClick)(), int iHeight = 16)
     {
         guiLayer = iGuiLayer;
         pos = iPos;
         sprites = iSprites;
-        normalSprite = iNormalSPrite;
+        normalSprite = iNormalSprite;
         pressedSprite = iPressedSprite;
-        normalColorID = iNormalSPrite;
-        pressedColorID = iPressedColorID;
+        normalPaletteID = iNormalPaletteID;
+        pressedPaletteID = iPressedPaletteID;
 
         height = iHeight;
         onClick = iOnClick;
     }
 
-    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+    void draw(SDL_Renderer* renderer, Palettelist pal)
     {
         if(!visible) return;
 
-        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, pos, pal, pressed ? pressedColorID : normalColorID, height / 16);
+        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, pos, pal, pressed ? pressedPaletteID : normalPaletteID, height / 16);
     }
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
@@ -286,12 +290,15 @@ public:
 
         if(mousePressed)
         {
-            if(mousePos.x > pos.x && mousePos.x < pos.x + text.length() * height && mousePos.y > pos.y && mousePos.y < pos.y + height)
+            if(mousePos.x > pos.x && mousePos.x < pos.x + height && mousePos.y > pos.y && mousePos.y < pos.y + height)
             {
                 pressed = true;
                 (*onClick)();
             }
         } 
+
+        if(visible && guiLayer == 2) primary_visible = true;
+        if(!visible && guiLayer == 2) primary_visible = false;
 
         if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
     }
