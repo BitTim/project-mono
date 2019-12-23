@@ -17,7 +17,7 @@ H [x] Refactor the GUI engine to work with 3 Planes:
   [x] - Dynamic (Common UI Elements)
   [x] - Primary Dynamic (Foreground, overlap dynamic elements)
 H [x] Write a Program to test the GUI elements
-H [ ] Fix GUI based on the GUI Test program
+H [x] Fix GUI based on the GUI Test program
 --Merge to experimental--
 H [ ] Create SpriteEditor
 H [ ] Create MapEditor
