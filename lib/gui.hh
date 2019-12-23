@@ -10,216 +10,337 @@
 #include "tcs_file.hh"
 #include "datatypes.hh"
 #include "var.hh"
+#include "keyin.hh"
+
+// +--------------------------------+
+// | Current GUI classes:           |
+// | - Panel                        |
+// | - TextBox                      |
+// | - TextButton                   |
+// | - SpriteButton                 |
+// | - Label                        |
+// +--------------------------------+
+
+// +--------------------------------+
+// | guiLayer is the layer on which |
+// | the UI Element is placed.      |
+// | guiLayer can be:               |
+// | - 0 -> Static(Background)      |
+// | - 1 -> Dynamic(Middle)         |
+// | - 2 -> Priority(Foreground)    |
+// |                                |
+// | UI Elements excluded from      |
+// | layer 0:                       |
+// | - TextBox                      |
+// +--------------------------------+
+
+bool primary_visible = false;
 
 //================================
-// Menu List
+// Panel
 //================================
-
-class MenuList
+// Default guiLayer: 0
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class Panel
 {
 public:
-    std::vector<std::string> entries;
-    std::vector<onClickFunc> functions;
-    int longestEntryLength = 0;
-    int cEntry = -1;
-    int menuPosX = 0;
-    int heightPerEntry;
-    bool visible = false;
-
-    MenuList() {  }
-    MenuList(std::vector<std::string> iEntries, std::vector<onClickFunc> iFunctions, int iHeightPerEntry, int iMenuPosX)
-    {
-        entries = iEntries;
-        heightPerEntry = iHeightPerEntry;
-        menuPosX = iMenuPosX;
-
-        for(int i = 0; i < entries.size(); i++)
-        {
-            if(entries[i].length() > longestEntryLength) longestEntryLength = entries[i].length();
-            functions.push_back(iFunctions[i]);
-        }
-    }
-
-    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
-    {
-        if(!visible) return;
-
-        pal.flipColors(1, 0, 2);
-
-        for(int i = 0; i < entries.size(); i++)
-        {
-            int posX = 0;
-            entries[i].resize(longestEntryLength, ' ');
-
-            if(i == cEntry) pal.flipColors(1, 0, 3);
-
-            for(int j = 0; j < longestEntryLength; j++)
-            {
-                guiSprites.draw_sprite(renderer, char2sid(entries[i].c_str()[j]), Vec2(menuPosX + posX, heightPerEntry + i * heightPerEntry), pal, 1, heightPerEntry / 16);
-                posX += 16;
-            }
-
-            if(i == cEntry) pal.flipColors(1, 0, 3);
-        }
-
-        pal.flipColors(1, 0, 2);
-    }
-
-    void inHandle(Vec2 mousePos, bool clicked)
-    {
-        cEntry = -1;
-
-        if(!visible) return;
-        if(mousePos.x > menuPosX + longestEntryLength * heightPerEntry || mousePos.x < menuPosX) return;
-        if(mousePos.y > heightPerEntry + entries.size() * heightPerEntry || mousePos.y < heightPerEntry) return;
-
-        for(int i = 0; i < entries.size(); i++)
-        {
-            if(mousePos.y >= heightPerEntry + (i * heightPerEntry) && mousePos.y < heightPerEntry + ((i + 1) * heightPerEntry)) cEntry = i;
-        }
-
-        if(clicked && cEntry != 1)
-        {
-            functions[cEntry]();
-        }
-    }
-};
-
-//================================
-// Menu Bar
-//================================
-
-class MenuBar
-{
-public:
-    std::vector<std::string> entries;
-    std::vector<MenuList> menus;
-    std::vector<int> entryXPos;
-    int cEntry = -1;
-    int height;
+    Vec2 size;
+    Vec2 pos;
+    byte colorID;
+    byte guiPaletteID;
     bool visible = true;
 
-    MenuBar() {  }
-    MenuBar(std::vector<std::vector<std::string>> iEntries, std::vector<std::vector<onClickFunc>> iFunctions, int iHeight)
+    Panel() { }
+    Panel(Vec2 iPos, Vec2 iSize, byte iColorID, byte iGuiPaletteID)
     {
-        entries = iEntries[0];
-        height = iHeight;
-
-        for(int i = 0; i < entries.size(); i++)
-        {
-            if(i == 0) entryXPos.push_back(0);
-            else entryXPos.push_back(entryXPos[i - 1] + (entries[i - 1].length() * height + height));
-
-            MenuList tmp_menulist(iEntries[1 + i], iFunctions[i], iHeight, entryXPos[i]);
-            menus.push_back(tmp_menulist);
-        }
+        size = iSize;
+        pos = iPos;
+        colorID = iColorID;
+        guiPaletteID = iGuiPaletteID;
     }
 
-    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+    void draw(SDL_Renderer* renderer, Palettelist guiPalettes)
     {
-        iSDL_SetRenderDrawColor(renderer, pal.palettes[1].col[2]);
-        SDL_Rect bar = iSDL_Rect(0, 0, _SCREENRES[0], height);
-        SDL_RenderFillRect(renderer, &bar);
-
-        int posX = 0;
-
-        for(int i = 0; i < entries.size(); i++)
-        {
-            if(i == cEntry) pal.flipColors(1, 0, 3);
-
-            for(int j = 0; j < strlen(entries[i].c_str()); j++)
-            {
-                guiSprites.draw_sprite(renderer, char2sid(entries[i].c_str()[j]), Vec2(posX, 0), pal, 1, height / 16);
-                posX += 16;
-            }
-
-            guiSprites.draw_sprite(renderer, char2sid(' '), Vec2(posX, 0), pal, 1, height / 16);
-            posX += 16;
-
-            if(i == cEntry) pal.flipColors(1, 0, 3);
-
-            menus[i].draw(renderer, guiSprites, pal);
-        }
+        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[guiPaletteID].col[colorID]);
+        SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
+        SDL_RenderFillRect(renderer, &plane);
     }
+};
 
-    void inHandle(Vec2 mousePos, bool clicked)
+//================================
+// TextBox
+//================================
+// Default guiLayer: 1
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class TextBox
+{
+public:
+	int height;
+	int maxInLength;
+	byte inMode;             //0 = Text, 1 = Num Dec, 2 = Num Hex
+    byte guiLayer;
+    byte guiPaletteID;
+	Vec2 pos;
+    int cursorPos = 0;
+	std::string content;
+	bool visible = true;
+    bool focused = false;
+
+	TextBox() { }
+	TextBox(byte iGuiLayer, Vec2 iPos, byte iInMode, byte iGuiPaletteID, int iMaxInLength = 10, int iHeight = 16, std::string iContent = "\0")
+	{
+        guiLayer = iGuiLayer;
+        if(guiLayer == 0) printf("[W] Warning: guiLayer set to 0 for \"TextBox\". This UI Element would never be focused\n");
+
+        guiPaletteID = iGuiPaletteID;
+
+		inMode = iInMode;
+		pos = iPos;
+		height = iHeight;
+		maxInLength = iMaxInLength;
+
+        content = iContent;
+        content.resize(maxInLength, '\0');
+	}
+
+	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist guiPalettes)
+	{
+		if(!visible) return;
+
+        //Draw Background
+        Panel background(pos, Vec2(maxInLength * height, height), 2, guiPaletteID);
+        background.draw(renderer, guiPalettes);
+
+        //Draw Content
+        for(int i = 0; i < maxInLength; i++)
+        {
+            if(content[i] == '\0') break;
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, 1, height / 16);
+        }
+
+        //Draw Border
+        iSDL_SetRenderDrawColor(renderer, focused ? guiPalettes.palettes[1].col[3] : guiPalettes.palettes[1].col[2]);
+		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, maxInLength * height, height);
+        SDL_RenderDrawRect(renderer, &plane);
+	}
+
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
     {
         if(!visible) return;
-        cEntry = -1;
-
-        for(int i = 0; i < entries.size(); i++)
+        if(guiLayer == 0) return;
+        if(primary_visible && guiLayer != 2)
         {
-            if(mousePos.y >= 0 && mousePos.y < height) if(mousePos.x >= entryXPos[i] && mousePos.x < entryXPos[i] + entries[i].length() * height + height) cEntry = i;
-            
-            menus[i].inHandle(mousePos, clicked);
-            if(clicked) if(menus[i].visible && i != cEntry) menus[i].visible = false; 
+            focused = false;
+            return;
         }
 
-        if(clicked)
+        if(mousePressed)
         {
-            if(cEntry != -1) menus[cEntry].visible = menus[cEntry].visible ? false : true;
+            if(mousePos.x >= pos.x && mousePos.x < pos.x + height * maxInLength && mousePos.y >= pos.y && mousePos.y < pos.y + height) focused = true;
+            else focused = false;
+        }
+
+        if(!focused) return;
+        if(visible && guiLayer == 2) primary_visible = true;
+        if(!visible && guiLayer == 2) primary_visible = false;
+
+        if(event.type == SDL_KEYDOWN)
+        {
+            char tmpchr = event2char(event, inMode);
+            if(cursorPos < maxInLength && tmpchr != '\0') content[cursorPos++] = tmpchr;
+
+            if(event.key.keysym.sym == SDLK_BACKSPACE)
+            {
+                cursorPos -= 1;
+                content[cursorPos] = '\0';
+            }
+
+            if(cursorPos > maxInLength) cursorPos = maxInLength;
+            if(cursorPos < 0) cursorPos = 0;
         }
     }
 };
 
 //================================
-// Simple Dialog Box
+// TextButton
 //================================
-
-class SimpleDialogBox
+// Default guiLayer: 1
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class TextButton
 {
 public:
-    std::string title;
-    std::string content;
-    int fontHeight;
-    Vec2 gridSize;
     Vec2 pos;
-    bool visible;
+    std::string text;
+    int height;
+    byte guiLayer;
+    byte guiPaletteID;
+    bool visible = true;
+    bool pressed;
+    void (*onClick)();
 
-    SimpleDialogBox() { };
-    SimpleDialogBox(std::string iTitle, std::string iContent, int iFontHeight, Vec2 iGridSize = Vec2(20, 5), Vec2 iPos = Vec2(-1, -1))
+    TextButton() { }
+    TextButton(byte iGuiLayer, Vec2 iPos, std::string iText, void (*iOnClick)(), byte iGuiPaletteID, int iHeight = 16)
     {
-        title = iTitle;
-        content = iContent;
-        fontHeight = iFontHeight;
-        gridSize = iGridSize;
+        guiLayer = iGuiLayer;
+        pos = iPos;
+        text = iText;
+        guiPaletteID = iGuiPaletteID;
 
-        if(iPos.x == -1 || iPos.y == -1) pos = Vec2(_SCREENRES[0] / 2 - (gridSize.x * fontHeight) / 2, _SCREENRES[1] - gridSize.y * fontHeight);
-        else pos = iPos;
+        height = iHeight;
+        onClick = iOnClick;
     }
 
-    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist pal)
+    void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist guiPalettes)
     {
         if(!visible) return;
 
-        iSDL_SetRenderDrawColor(renderer, pal.palettes[1].col[2]);
-        SDL_Rect panel = iSDL_Rect(pos.x, pos.y, gridSize.x * fontHeight, gridSize.y * fontHeight);
-        SDL_RenderFillRect(renderer, &panel);
+        //Draw Background
+        Panel background(pos, Vec2(text.length() * height, height), pressed ? 3 : 2, guiPaletteID);
+        background.draw(renderer, guiPalettes);
 
-        int contentIterator = 0;
-        pal.flipColors(1, 0, 2);
-
-        for(int i = 0; i < title.length(); i++) guiSprites.draw_sprite(renderer, char2sid(title[i]), Vec2(pos.x + (i * fontHeight), pos.y), pal, 1, fontHeight / 16);
-
-        for(int y = 2; y < gridSize.y; y++)
+        //Draw Content
+        for(int i = 0; i < text.length(); i++)
         {
-            for(int x = 0; x < gridSize.x; x++)
-            {
-                if(contentIterator < content.length())
-                {
-                    if(content[contentIterator] == '\n')
-                    {
-                        contentIterator++;
-                        break;
-                    }
-                    
-                    guiSprites.draw_sprite(renderer, char2sid(content[contentIterator]), Vec2(pos.x + (x * fontHeight), pos.y + (y * fontHeight)), pal, 1, fontHeight / 16);
-                    contentIterator++;
-                }
-            }
+            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, 1, height / 16);
         }
-        pal.flipColors(1, 0, 2);
     }
+
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
+    {
+        if(!visible) return;
+        if(guiLayer == 0) return;
+        if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePressed)
+        {
+            if(mousePos.x > pos.x && mousePos.x < pos.x + text.length() * height && mousePos.y > pos.y && mousePos.y < pos.y + height)
+            {
+                pressed = true;
+                (*onClick)();
+            }
+        } 
+
+        if(visible && guiLayer == 2) primary_visible = true;
+        if(!visible && guiLayer == 2) primary_visible = false;
+
+        if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
+    }
+};
+
+//================================
+// SpriteButton
+//================================
+// Default guiLayer: 1
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class SpriteButton
+{
+public:
+    Vec2 pos;
+    int height;
+    byte guiLayer;
+    Spritesheet sprites;
+    int normalSprite;
+    int pressedSprite;
+    int normalPaletteID;
+    int pressedPaletteID;
+    bool visible = true;
+    bool pressed = false;
+    void (*onClick)();
+
+    SpriteButton() { }
+    SpriteButton(byte iGuiLayer, Vec2 iPos, Spritesheet iSprites, int iNormalSprite, int iPressedSprite, int iNormalPaletteID, int iPressedPaletteID, void (*iOnClick)(), int iHeight = 16)
+    {
+        guiLayer = iGuiLayer;
+        pos = iPos;
+        sprites = iSprites;
+        normalSprite = iNormalSprite;
+        pressedSprite = iPressedSprite;
+        normalPaletteID = iNormalPaletteID;
+        pressedPaletteID = iPressedPaletteID;
+
+        height = iHeight;
+        onClick = iOnClick;
+    }
+
+    void draw(SDL_Renderer* renderer, Palettelist pal)
+    {
+        if(!visible) return;
+
+        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, Vec2(pos.x / (height / 16), pos.y / (height / 16)), pal, pressed ? pressedPaletteID : normalPaletteID, height / 16);
+    }
+
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
+    {
+        if(!visible) return;
+        if(guiLayer == 0) return;
+        if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePressed)
+        {
+            if(mousePos.x > pos.x && mousePos.x < pos.x + height && mousePos.y > pos.y && mousePos.y < pos.y + height)
+            {
+                pressed = true;
+                (*onClick)();
+            }
+        } 
+
+        if(visible && guiLayer == 2) primary_visible = true;
+        if(!visible && guiLayer == 2) primary_visible = false;
+
+        if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
+    }
+};
+
+//================================
+// Label
+//================================
+// Default guiLayer: 0
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class Label
+{
+public:
+	int height;
+	Vec2 pos;
+    byte guiPaletteID;
+	std::string content;
+	bool visible = true;
+
+	Label() { }
+	Label(std::string iContent, Vec2 iPos, byte iGuiPaletteID, int iHeight = 16)
+	{
+		content = iContent;
+        pos = iPos;
+        height = iHeight;
+
+        guiPaletteID = iGuiPaletteID;
+	}
+
+	void draw(SDL_Renderer* renderer, Spritesheet guiSprites, Palettelist guiPalettes)
+	{
+		if(!visible) return;
+        
+        //Draw Content
+        for(int i = 0; i < content.length(); i++)
+        {
+            if(content[i] == '\0') break;
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
+        }
+	}
 };
 
 #endif // GUI_H

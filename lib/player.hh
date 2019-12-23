@@ -44,7 +44,7 @@ public:
 
 	void draw_player(SDL_Renderer* renderer, Vec2f playerDrawOffset, Spritesheet pSprites, Palettelist palette, word cPalette)
 	{
-		pSprites.draw_sprite(renderer, 0, gtop(Vec2f(float((_TILESPERSCREENWIDTH) / 2) - playerDrawOffset.x, float((_TILESPERSCREENHEIGHT) / 2) - playerDrawOffset.y)), palette, cPalette);
+		pSprites.drawSprite(renderer, 0, gtop(Vec2f(float((_TILESPERSCREENWIDTH) / 2) - playerDrawOffset.x, float((_TILESPERSCREENHEIGHT) / 2) - playerDrawOffset.y)), palette, cPalette);
 	}
 };
 

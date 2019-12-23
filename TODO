@@ -1,7 +1,25 @@
 H [x] Finish the MenuList in the GUI library
 H [x] Add SimpleDialogBox to GUI library
 --Merge to experimental--
-H [ ] Update SpriteEditor to use Spritesheets
+H [x] Add TextBox Element to GUI library
+H [x] Add Label Element to GUI library
+H [x] Remove UI elements, which consist of nonexisting simpler pieces
+  [x] - Remove MenuBar
+  [x] - Remove MenuList
+  [x] - Remove SimpleDialogBox
+  [x] - Remove TextBoxDialogBox
+H [x] Add fundamental UI Elements
+  [x] - Add Plane
+  [x] - Add TextButton
+  [x] - Add SpriteButton
+H [x] Refactor the GUI engine to work with 3 Planes:
+  [x] - Static (Background)
+  [x] - Dynamic (Common UI Elements)
+  [x] - Primary Dynamic (Foreground, overlap dynamic elements)
+H [x] Write a Program to test the GUI elements
+H [ ] Fix GUI based on the GUI Test program
+--Merge to experimental--
+H [ ] Create SpriteEditor
 H [ ] Create MapEditor
 L [ ] Create PaletteEditor
 --Merge to experimental--
