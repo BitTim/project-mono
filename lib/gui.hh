@@ -14,7 +14,7 @@
 
 // +--------------------------------+
 // | Current GUI classes:           |
-// | - Plane                        |
+// | - Panel                        |
 // | - TextBox                      |
 // | - TextButton                   |
 // | - SpriteButton                 |
@@ -37,7 +37,7 @@
 bool primary_visible = false;
 
 //================================
-// Plane
+// Panel
 //================================
 // Default guiLayer: 0
 // Can be overriden if utilised
@@ -49,7 +49,6 @@ class Panel
 public:
     Vec2 size;
     Vec2 pos;
-    byte guiLayer;
     byte colorID;
     byte guiPaletteID;
     bool visible = true;
@@ -66,7 +65,7 @@ public:
     void draw(SDL_Renderer* renderer, Palettelist guiPalettes)
     {
         iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[guiPaletteID].col[colorID]);
-        SDL_Rect plane = iSDL_Rect(pos.x, pos.y, pos.x + size.x, pos.y + size.y);
+        SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
         SDL_RenderFillRect(renderer, &plane);
     }
 };
@@ -115,7 +114,7 @@ public:
 		if(!visible) return;
 
         //Draw Background
-        Panel background(pos, Vec2(0, 0), 2, guiPaletteID);
+        Panel background(pos, Vec2(maxInLength * height, height), 2, guiPaletteID);
         background.draw(renderer, guiPalettes);
 
         //Draw Content
@@ -127,7 +126,7 @@ public:
 
         //Draw Border
         iSDL_SetRenderDrawColor(renderer, focused ? guiPalettes.palettes[1].col[3] : guiPalettes.palettes[1].col[2]);
-		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, pos.x, pos.y);
+		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, maxInLength * height, height);
         SDL_RenderDrawRect(renderer, &plane);
 	}
 
@@ -205,7 +204,7 @@ public:
         if(!visible) return;
 
         //Draw Background
-        Panel background(pos, Vec2(0, 0), pressed ? 3 : 2, guiPaletteID);
+        Panel background(pos, Vec2(text.length() * height, height), pressed ? 3 : 2, guiPaletteID);
         background.draw(renderer, guiPalettes);
 
         //Draw Content
@@ -257,7 +256,7 @@ public:
     int normalPaletteID;
     int pressedPaletteID;
     bool visible = true;
-    bool pressed;
+    bool pressed = false;
     void (*onClick)();
 
     SpriteButton() { }
@@ -279,7 +278,7 @@ public:
     {
         if(!visible) return;
 
-        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, pos, pal, pressed ? pressedPaletteID : normalPaletteID, height / 16);
+        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, Vec2(pos.x / (height / 16), pos.y / (height / 16)), pal, pressed ? pressedPaletteID : normalPaletteID, height / 16);
     }
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
@@ -338,6 +337,7 @@ public:
         //Draw Content
         for(int i = 0; i < content.length(); i++)
         {
+            if(content[i] == '\0') break;
             guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
         }
 	}

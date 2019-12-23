@@ -46,6 +46,8 @@ void init()
   window = SDL_CreateWindow("GUI Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _SCREENRES.x, _SCREENRES.y, 0);
   renderer = SDL_CreateRenderer(window, -1, 0);
 
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
   //Load Palettes
 	if(palettelist.load_file("dat/palettes.tcp") == -1)
 	{
@@ -70,7 +72,7 @@ void init()
   textbox1 = TextBox(1, Vec2(30 + 11 * 16, 30), 0, 1, 10, 16);
   submit = TextButton(1, Vec2(30 + 11 * 16 + 11 * 16, 30), "Submit", printText, 1, 16);
   label2 = Label("\0", Vec2(30, 60), 1, 16);
-  button2 = SpriteButton(1, Vec2(30 + 11 * 16 + 11 * 16 + 48), pSprites, 0, 0, 0, 1, showOverlay, 16);
+  button2 = SpriteButton(1, Vec2(30 + 11 * 16 + 11 * 16 + 7 * 16, 30), pSprites, 0, 0, 0, 1, showOverlay, 48);
   superbutton = TextButton(2, Vec2(30, 90), "Back", hideOverlay, 1, 16);
 
   superbutton.visible = false;
