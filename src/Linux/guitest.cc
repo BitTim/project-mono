@@ -49,7 +49,7 @@ void init()
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
   //Load Palettes
-	if(palettelist.load_file("dat/palettes.tcp") == -1)
+	if(palettelist.loadFile("dat/palettes.tcp") == -1)
 	{
 		printf("[F] Error 201: Failed to load palettelist \"dat/palettes.tcp\"\n");
 		exit(-1);
@@ -76,6 +76,7 @@ void init()
   superbutton = TextButton(2, Vec2(30, 90), "Back", hideOverlay, 1, 16);
 
   superbutton.visible = false;
+
 }
 
 void end()

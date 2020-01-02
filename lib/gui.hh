@@ -121,17 +121,19 @@ public:
         for(int i = 0; i < maxInLength; i++)
         {
             if(content[i] == '\0') break;
-            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, 1, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
         }
 
         //Draw Border
-        iSDL_SetRenderDrawColor(renderer, focused ? guiPalettes.palettes[1].col[3] : guiPalettes.palettes[1].col[2]);
+        iSDL_SetRenderDrawColor(renderer, focused ? guiPalettes.palettes[guiPaletteID].col[3] : guiPalettes.palettes[guiPaletteID].col[2]);
 		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, maxInLength * height, height);
         SDL_RenderDrawRect(renderer, &plane);
 	}
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
     {
+        if(visible && guiLayer == 2) primary_visible = true;
+
         if(!visible) return;
         if(guiLayer == 0) return;
         if(primary_visible && guiLayer != 2)
@@ -146,18 +148,24 @@ public:
             else focused = false;
         }
 
-        if(!focused) return;
-        if(visible && guiLayer == 2) primary_visible = true;
-        if(!visible && guiLayer == 2) primary_visible = false;
+        if(!focused)
+        {
+            cursorPos = 0;
+            return;
+        }
 
         if(event.type == SDL_KEYDOWN)
         {
             char tmpchr = event2char(event, inMode);
-            if(cursorPos < maxInLength && tmpchr != '\0') content[cursorPos++] = tmpchr;
+            if(cursorPos < maxInLength && cursorPos >= 0 && tmpchr != '\0')
+            {
+                content[cursorPos] = tmpchr;
+                cursorPos += 1;
+            }
 
             if(event.key.keysym.sym == SDLK_BACKSPACE)
             {
-                cursorPos -= 1;
+                if(cursorPos >= 0) cursorPos -= 1;
                 content[cursorPos] = '\0';
             }
 
@@ -184,7 +192,7 @@ public:
     byte guiLayer;
     byte guiPaletteID;
     bool visible = true;
-    bool pressed;
+    bool pressed = false;
     void (*onClick)();
 
     TextButton() { }
@@ -210,12 +218,14 @@ public:
         //Draw Content
         for(int i = 0; i < text.length(); i++)
         {
-            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, 1, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
         }
     }
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
     {
+        if(visible && guiLayer == 2) primary_visible = true;
+
         if(!visible) return;
         if(guiLayer == 0) return;
         if(guiLayer == 1 && primary_visible) return;
@@ -228,9 +238,6 @@ public:
                 (*onClick)();
             }
         } 
-
-        if(visible && guiLayer == 2) primary_visible = true;
-        if(!visible && guiLayer == 2) primary_visible = false;
 
         if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
     }
@@ -283,6 +290,8 @@ public:
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
     {
+        if(visible && guiLayer == 2) primary_visible = true;
+
         if(!visible) return;
         if(guiLayer == 0) return;
         if(guiLayer == 1 && primary_visible) return;
@@ -295,9 +304,6 @@ public:
                 (*onClick)();
             }
         } 
-
-        if(visible && guiLayer == 2) primary_visible = true;
-        if(!visible && guiLayer == 2) primary_visible = false;
 
         if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
     }

@@ -18,7 +18,14 @@ public:
   word nPalettes;
   std::vector<Palette> palettes;
 
-  int load_file(const char* path)
+	void flipColors(int pID, int c1, int c2)
+	{
+		SDL_Color tmp_col = palettes[pID].col[c1];
+    palettes[pID].col[c1] = palettes[pID].col[c2];
+  	palettes[pID].col[c2] = tmp_col;
+	}
+
+  int loadFile(const char* path)
 	{
 		char tmp_word[2];
     char tmp_col[4];
@@ -48,11 +55,38 @@ public:
 		return 0;
 	}
 
-	void flipColors(int pID, int c1, int c2)
+	int saveFile(const char* path)
 	{
-		SDL_Color tmp_col = palettes[pID].col[c1];
-    palettes[pID].col[c1] = palettes[pID].col[c2];
-  	palettes[pID].col[c2] = tmp_col;
+		char tmp_word[2];
+		char tmp_col[4];
+
+		std::ofstream palette_file(path, std::ofstream::binary);
+		if(!palette_file) return -1;
+
+		tmp_word[0] = 0x54;
+		tmp_word[1] = 0x50;
+		palette_file.write(tmp_word, 2);
+
+		nPalettes = palettes.size();
+		tmp_word[0] = nPalettes & 0xFF00;
+		tmp_word[1] = nPalettes & 0x00FF;
+		palette_file.write(tmp_word, 2);
+
+		for(int n = 0; n < nPalettes; n++)
+		{
+			for(int i = 0; i < 4; i++)
+			{
+				tmp_col[0] = palettes[n].col[i].r;
+				tmp_col[1] = palettes[n].col[i].g;
+				tmp_col[2] = palettes[n].col[i].b;
+				tmp_col[3] = palettes[n].col[i].a;
+
+				palette_file.write(tmp_col, 4);
+			}
+		}
+
+		palette_file.close();
+		return 0;
 	}
 };
 
