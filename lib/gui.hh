@@ -15,6 +15,7 @@
 // +--------------------------------+
 // | Current GUI classes:           |
 // | - Panel                        |
+// | - ButtonLogic                  |
 // | - TextBox                      |
 // | - TextButton                   |
 // | - SpriteButton                 |
@@ -67,6 +68,54 @@ public:
         iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[guiPaletteID].col[colorID]);
         SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
         SDL_RenderFillRect(renderer, &plane);
+    }
+};
+
+//================================
+// ButtonLogic
+//================================
+// Default guiLayer: 1
+// Can be overriden if utilised
+// in a UI Element on a higher
+// Layer
+//================================
+class ButtonLogic
+{
+public:
+    Vec2 pos;
+    Vec2 size;
+    byte guiLayer;
+    bool visible = true;
+    bool pressed = false;
+    void (*onClick)();
+
+    ButtonLogic() { }
+    ButtonLogic(byte iGuiLayer, Vec2 iPos, Vec2 iSize, void(*iOnClick)())
+    {
+        guiLayer = iGuiLayer;
+        pos = iPos;
+        size = iPos;
+        onClick = iOnClick;
+    }
+
+    void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
+    {
+        if(visible && guiLayer == 2) primary_visible = true;
+
+        if(!visible) return;
+        if(guiLayer == 0) return;
+        if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePressed)
+        {
+            if(mousePos.x > pos.x && mousePos.x < pos.x + size.x && mousePos.y > pos.y && mousePos.y < pos.y + size.y)
+            {
+                pressed = true;
+                (*onClick)();
+            }
+        } 
+
+        if(event.type == SDL_MOUSEBUTTONUP) pressed = false;
     }
 };
 
