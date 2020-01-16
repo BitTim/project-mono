@@ -19,7 +19,10 @@ H [x] Refactor the GUI engine to work with 3 Planes:
 H [x] Write a Program to test the GUI elements
 H [x] Fix GUI based on the GUI Test program
 --Merge to experimental--
+H [x] Implement standalone Button Logic
+H [x] Make functionality to save TCP Files
+H [ ] Update PaletteEditor
+--Merge to experimental--
 H [ ] Create SpriteEditor
 H [ ] Create MapEditor
-L [ ] Create PaletteEditor
 --Merge to experimental--

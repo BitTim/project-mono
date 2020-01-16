@@ -88,34 +88,34 @@ char event2char(SDL_Event event, int mode)
         if(mode == 0) c = 'z';
         break;
     case '0':
-        if(mode != 0) c = '0';
+        if(mode >= 0) c = '0';
         break;
     case '1':
-        if(mode != 0) c = '1';
+        if(mode >= 0) c = '1';
         break;
     case '2':
-        if(mode != 0) c = '2';
+        if(mode >= 0) c = '2';
         break;
     case '3':
-        if(mode != 0) c = '3';
+        if(mode >= 0) c = '3';
         break;
     case '4':
-        if(mode != 0) c = '4';
+        if(mode >= 0) c = '4';
         break;
     case '5':
-        if(mode != 0) c = '5';
+        if(mode >= 0) c = '5';
         break;
     case '6':
-        if(mode != 0) c = '6';
+        if(mode >= 0) c = '6';
         break;
     case '7':
-        if(mode != 0) c = '7';
+        if(mode >= 0) c = '7';
         break;
     case '8':
-        if(mode != 0) c = '8';
+        if(mode >= 0) c = '8';
         break;
     case '9':
-        if(mode != 0) c = '9';
+        if(mode >= 0) c = '9';
         break;
     case '.':
         if(mode == 0) c = '.';

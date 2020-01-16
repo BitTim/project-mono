@@ -22,7 +22,7 @@ public:
 	word nSprites;
 	std::vector<Sprite> sprite_data;
 
-	int load_file(const char* path)
+	int loadFile(const char* path)
 	{
 		char tmp_word[2];
 		char tmp_dword[4];
