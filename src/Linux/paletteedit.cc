@@ -32,9 +32,20 @@ TextButton menubar[3];
 TextButton fileMenu[4];
 TextButton editMenu[3];
 
+ButtonLogic paletteSelect[70];
+int cSelectorButton;
+
+std::string openPath = "\0";
+std::string savePath = "\0";
+
 Panel dialogBG;
-Label dialogText;
-TextButton dialogButtons[2];
+Label openDialogText;
+Label saveDialogText;
+TextBox dialogPath;
+
+TextButton cancelButton;
+TextButton openButton;
+TextButton saveButton;
 
 //================================
 // onClick Function templates
@@ -47,15 +58,21 @@ void showEditMenu();
 void hideEditMenu();
 
 void newFile();
-void openFile();
-void saveFile();
-void saveFileAs();
+void openFileDialog();
+void saveFileDialog();
 
 void newPalette();
 void removePalette();
 void clearPalette();
 
 void about();
+
+void changeCPalette();
+
+void openFile();
+void saveFile();
+void saveFileAsDialog();
+void cancelDialog();
 
 //================================
 // Utility Functions
@@ -107,14 +124,33 @@ void init()
     menubar[2] = TextButton(1, Vec2(10 * 16, 0), "About", about, 0);
 
     fileMenu[0] = TextButton(2, Vec2(0, 1 * 16), "New File    ", newFile, 0);
-    fileMenu[1] = TextButton(2, Vec2(0, 2 * 16), "Open File   ", openFile, 0);
-    fileMenu[2] = TextButton(2, Vec2(0, 3 * 16), "Save File   ", saveFile, 0);
-    fileMenu[3] = TextButton(2, Vec2(0, 4 * 16), "Save File As", saveFileAs, 0);
+    fileMenu[1] = TextButton(2, Vec2(0, 2 * 16), "Open File   ", openFileDialog, 0);
+    fileMenu[2] = TextButton(2, Vec2(0, 3 * 16), "Save File   ", saveFileDialog, 0);
+    fileMenu[3] = TextButton(2, Vec2(0, 4 * 16), "Save File As", saveFileAsDialog, 0);
 
     editMenu[0] = TextButton(2, Vec2(5 * 16, 1 * 16), "New Palette   ", newPalette, 0);
     editMenu[1] = TextButton(2, Vec2(5 * 16, 2 * 16), "Remove Palette", removePalette, 0);
-    editMenu[2] = TextButton(2, Vec2(5 * 16, 3 * 16), "Clear Palette", clearPalette, 0);
+    editMenu[2] = TextButton(2, Vec2(5 * 16, 3 * 16), "Clear Palette ", clearPalette, 0);
 
+    dialogBG = Panel(Vec2(_SCREENRES.x / 2 - 32 * 16 / 2, _SCREENRES.y / 2 - 7 * 16 / 2), Vec2(32 * 16, 7 * 16), 3, 0);
+    openDialogText = Label("Name of the file to open", Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 16), 0);
+    saveDialogText = Label("Name of the file to save", Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 16), 0);
+    dialogPath = TextBox(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 3 * 16), 0, 0, 30, 16);
+
+    cancelButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Cancel", cancelDialog, 0);
+    openButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 26 * 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Open", openFile, 0);
+    saveButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 26 * 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Save", saveFile, 0);
+
+    for(int i = 0; i < 70; i++)
+    {
+        int y;
+        paletteSelect[i] = ButtonLogic(1, Vec2(2 * 16 + (i - (i >= 35 ? 35 : 0)) * 16, i >= 35 ? 25 * 16 : 20 * 16), Vec2(16, 16 * 4), changeCPalette);        
+        paletteSelect[i].visible = false;
+    }
+
+    paletteSelect[0].visible = true;
+
+    cancelDialog();
     hideFileMenu();
     hideEditMenu();
 }
@@ -144,13 +180,32 @@ void newFile()
     cPaletteID = 0;
 }
 
-void openFile()
+void openFileDialog()
 {
-    //Dialog with TextBox
+    hideFileMenu();
+
+    dialogBG.visible = true;
+    openDialogText.visible = true;
+    dialogPath.visible = true;
+    cancelButton.visible = true;
+    openButton.visible = true;
 }
 
-void saveFile() { }
-void saveFileAs() { }
+void saveFileDialog()
+{
+    hideFileMenu();
+    if(savePath != "\0")
+    {
+        saveFile();
+        return;
+    }
+
+    dialogBG.visible = true;
+    saveDialogText.visible = true;
+    dialogPath.visible = true;
+    cancelButton.visible = true;
+    saveButton.visible = true;
+}
 
 void newPalette()
 {
@@ -158,20 +213,24 @@ void newPalette()
     for(int i = 0; i < 4; i++) colorVals[i].content = "000000FF";
     for(int i = 0; i < 4; i++) cPalette.col[i] = iSDL_Color((std::stoul(colorVals[i].content, nullptr, 16) & 0xFF000000) >> 24, (std::stoul(colorVals[i].content, nullptr, 16) & 0x00FF0000) >> 16, (std::stoul(colorVals[i].content, nullptr, 16) & 0x0000FF00) >> 8, std::stoul(colorVals[i].content, nullptr, 16) & 0x000000FF);
     cPalettelist.palettes.push_back(cPalette);
-    cPaletteID++;
+    cPaletteID = cPalettelist.palettes.size() - 1;
+    paletteSelect[cPaletteID].visible = true;
 }
 
 void removePalette()
 {
     if(cPalettelist.palettes.size() > 1)
     {
-        cPaletteID -= 1;
-        cPalettelist.palettes.pop_back();
+        paletteSelect[cPalettelist.palettes.size() - 1].visible = false;
+        cPalettelist.palettes.erase(cPalettelist.palettes.begin() + cPaletteID);
+
+        if(cPaletteID < cPalettelist.palettes.size() - 1) cPaletteID += 1;
+        else cPaletteID -= 1;
+
         cPalette = cPalettelist.palettes[cPaletteID];
         for(int i = 0; i < 4; i++)
         {
             char tmpchr[9];
-
             sprintf(tmpchr, "%02x%02x%02x%02x", cPalette.col[i].r, cPalette.col[i].g, cPalette.col[i].b, cPalette.col[i].a);
             colorVals[i].content = tmpchr;
         }
@@ -185,6 +244,62 @@ void clearPalette()
 }
 
 void about() { }
+
+void changeCPalette() {
+    for(int i = 0; i < 4; i++) cPalette.col[i] = iSDL_Color((std::stoul(colorVals[i].content, nullptr, 16) & 0xFF000000) >> 24, (std::stoul(colorVals[i].content, nullptr, 16) & 0x00FF0000) >> 16, (std::stoul(colorVals[i].content, nullptr, 16) & 0x0000FF00) >> 8, std::stoul(colorVals[i].content, nullptr, 16) & 0x000000FF);
+    cPalette = cPalettelist.palettes[cSelectorButton];
+    cPaletteID = cSelectorButton;
+    for(int i = 0; i < 4; i++)
+    {
+        char tmpchr[9];
+        sprintf(tmpchr, "%02x%02x%02x%02x", cPalette.col[i].r, cPalette.col[i].g, cPalette.col[i].b, cPalette.col[i].a);
+        colorVals[i].content = tmpchr;
+    }
+}
+
+void openFile()
+{
+    newFile();
+    openPath = dialogPath.content.c_str();
+    savePath = openPath.c_str();
+
+    char tmpchr[31];
+    sprintf(tmpchr, "pedit_out/%s.tcp", openPath.c_str());
+
+    if(cPalettelist.loadFile(tmpchr) == -1) printf("[F] Error 201: Failed to load palettelist \"%s\"\n", tmpchr);
+    for(int i = 0; i < cPalettelist.palettes.size(); i++) paletteSelect[i].visible = true; 
+    removePalette();
+
+    cSelectorButton = 0;
+    changeCPalette();
+    cancelDialog();
+}
+
+void saveFile()
+{
+    if(savePath == "\0") savePath = dialogPath.content.c_str();
+    char tmpchr[31];
+    sprintf(tmpchr, "pedit_out/%s.tcp", savePath.c_str());
+    cPalettelist.saveFile(tmpchr);
+    cancelDialog();
+}
+
+void saveFileAsDialog()
+{
+    savePath = "\0";
+    saveFileDialog();
+}
+
+void cancelDialog()
+{
+    dialogBG.visible = false;
+    openDialogText.visible = false;
+    saveDialogText.visible = false;
+    dialogPath.visible = false;
+    cancelButton.visible = false;
+    openButton.visible = false;
+    saveButton.visible = false;
+}
 
 //================================
 // Repeating Functions
@@ -201,10 +316,21 @@ void update()
 
     primary_visible = false;
 
+    dialogPath.inHandle(event, mousePressed, mousePos);
+    cancelButton.inHandle(event, mousePressed, mousePos);
+    openButton.inHandle(event, mousePressed, mousePos);
+    saveButton.inHandle(event, mousePressed, mousePos);
+
     for(int i = 0; i < 4; i++) fileMenu[i].inHandle(event, mousePressed, mousePos);
     for(int i = 0; i < 3; i++) editMenu[i].inHandle(event, mousePressed, mousePos);
     for(int i = 0; i < 3; i++) menubar[i].inHandle(event, mousePressed, mousePos);
     for(int i = 0; i < 4; i++) colorVals[i].inHandle(event, mousePressed, mousePos);
+
+    for(int i = 0; i < 70; i++)
+    {
+        cSelectorButton = i;
+        paletteSelect[i].inHandle(event, mousePressed, mousePos);
+    }
 
     for(int i = 0; i < 4; i++) std::replace(colorVals[i].content.begin(), colorVals[i].content.end(), '\0', '0');
     for(int i = 0; i < 4; i++) cPalette.col[i] = iSDL_Color((std::stoul(colorVals[i].content, nullptr, 16) & 0xFF000000) >> 24, (std::stoul(colorVals[i].content, nullptr, 16) & 0x00FF0000) >> 16, (std::stoul(colorVals[i].content, nullptr, 16) & 0x0000FF00) >> 8, std::stoul(colorVals[i].content, nullptr, 16) & 0x000000FF);
@@ -249,6 +375,16 @@ void draw()
             SDL_RenderFillRect(renderer, &tmp_rect);
         }
     }
+    paletteSelect[cPaletteID].draw(renderer, guiPalettes);
+
+    //Draw dialog
+    dialogBG.draw(renderer, guiPalettes);
+    openDialogText.draw(renderer, guiSprites, guiPalettes);
+    saveDialogText.draw(renderer, guiSprites, guiPalettes);
+    dialogPath.draw(renderer, guiSprites, guiPalettes);
+    cancelButton.draw(renderer, guiSprites, guiPalettes);
+    openButton.draw(renderer, guiSprites, guiPalettes);
+    saveButton.draw(renderer, guiSprites, guiPalettes);
 
     SDL_RenderPresent(renderer);
 }

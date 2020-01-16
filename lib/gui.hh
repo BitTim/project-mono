@@ -65,6 +65,8 @@ public:
 
     void draw(SDL_Renderer* renderer, Palettelist guiPalettes)
     {
+        if(!visible) return;
+        
         iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[guiPaletteID].col[colorID]);
         SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
         SDL_RenderFillRect(renderer, &plane);
@@ -94,9 +96,19 @@ public:
     {
         guiLayer = iGuiLayer;
         pos = iPos;
-        size = iPos;
+        size = iSize;
         onClick = iOnClick;
     }
+
+    void draw(SDL_Renderer* renderer, Palettelist guiPalettes)
+	{
+		if(!visible) return;
+    
+        //Draw Border
+        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[3]);
+		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
+        SDL_RenderDrawRect(renderer, &plane);
+	}
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
     {
@@ -138,11 +150,12 @@ public:
 	Vec2 pos;
     int cursorPos = 0;
 	std::string content;
+    std::string iContent;
 	bool visible = true;
     bool focused = false;
 
 	TextBox() { }
-	TextBox(byte iGuiLayer, Vec2 iPos, byte iInMode, byte iGuiPaletteID, int iMaxInLength = 10, int iHeight = 16, std::string iContent = "\0")
+	TextBox(byte iGuiLayer, Vec2 iPos, byte iInMode, byte iGuiPaletteID, int iMaxInLength = 10, int iHeight = 16, std::string iIContent = "\0")
 	{
         guiLayer = iGuiLayer;
         if(guiLayer == 0) printf("[W] Warning: guiLayer set to 0 for \"TextBox\". This UI Element would never be focused\n");
@@ -154,7 +167,8 @@ public:
 		height = iHeight;
 		maxInLength = iMaxInLength;
 
-        content = iContent;
+        content = iIContent;
+        iContent = iIContent;
         content.resize(maxInLength, '\0');
 	}
 
@@ -183,7 +197,12 @@ public:
     {
         if(visible && guiLayer == 2) primary_visible = true;
 
-        if(!visible) return;
+        if(!visible)
+        {
+            content = iContent;
+            return;
+        }
+
         if(guiLayer == 0) return;
         if(primary_visible && guiLayer != 2)
         {

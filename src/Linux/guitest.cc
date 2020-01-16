@@ -56,13 +56,13 @@ void init()
 	}
 
   //Load Sprites
-  if(pSprites.load_file("dat/player_sprites.tcs") == -1)
+  if(pSprites.loadFile("dat/player_sprites.tcs") == -1)
 	{
 		printf("[F] Error 202: Failed to load spritesheet \"dat/player_sprites.tcs\"\n");
 		exit(-1);
 	}
 
-	if(guiSprites.load_file("dat/gui_sprites.tcs") == -1)
+	if(guiSprites.loadFile("dat/gui_sprites.tcs") == -1)
 	{
 		printf("[F] Error 202: Failed to load spritesheet \"dat/gui_sprites.tcs\"\n");
 		exit(-1);
@@ -72,7 +72,7 @@ void init()
   textbox1 = TextBox(1, Vec2(30 + 11 * 16, 30), 0, 1, 10, 16);
   submit = TextButton(1, Vec2(30 + 11 * 16 + 11 * 16, 30), "Submit", printText, 1, 16);
   label2 = Label("\0", Vec2(30, 60), 1, 16);
-  button2 = SpriteButton(1, Vec2(30 + 11 * 16 + 11 * 16 + 7 * 16, 30), pSprites, 0, 0, 0, 1, showOverlay, 48);
+  button2 = SpriteButton(1, Vec2(30 + 11 * 16 + 11 * 16 + 7 * 16, 30), guiSprites, 32, 33, 0, 1, showOverlay, 48);
   superbutton = TextButton(2, Vec2(30, 90), "Back", hideOverlay, 1, 16);
 
   superbutton.visible = false;
@@ -134,11 +134,13 @@ void printText()
 void showOverlay()
 {
   superbutton.visible = true;
+  primary_visible = true;
 }
 
 void hideOverlay()
 {
   superbutton.visible = false;
+  primary_visible = false;
 }
 
 //================================
