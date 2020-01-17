@@ -87,17 +87,19 @@ public:
     Vec2 pos;
     Vec2 size;
     byte guiLayer;
+    byte guiPaletteID;
     bool visible = true;
     bool pressed = false;
     void (*onClick)();
 
     ButtonLogic() { }
-    ButtonLogic(byte iGuiLayer, Vec2 iPos, Vec2 iSize, void(*iOnClick)())
+    ButtonLogic(byte iGuiLayer, Vec2 iPos, Vec2 iSize, byte iGuiPaletteID, void(*iOnClick)())
     {
         guiLayer = iGuiLayer;
         pos = iPos;
         size = iSize;
         onClick = iOnClick;
+        guiPaletteID = iGuiPaletteID;
     }
 
     void draw(SDL_Renderer* renderer, Palettelist guiPalettes)
@@ -105,7 +107,7 @@ public:
 		if(!visible) return;
     
         //Draw Border
-        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[3]);
+        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[guiPaletteID + 1].col[3]);
 		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
         SDL_RenderDrawRect(renderer, &plane);
 	}
@@ -153,6 +155,7 @@ public:
     std::string iContent;
 	bool visible = true;
     bool focused = false;
+    bool hovered = false;
 
 	TextBox() { }
 	TextBox(byte iGuiLayer, Vec2 iPos, byte iInMode, byte iGuiPaletteID, int iMaxInLength = 10, int iHeight = 16, std::string iIContent = "\0")
@@ -184,11 +187,16 @@ public:
         for(int i = 0; i < maxInLength; i++)
         {
             if(content[i] == '\0') break;
-            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID + 1, height / 16);
         }
 
         //Draw Border
-        iSDL_SetRenderDrawColor(renderer, focused ? guiPalettes.palettes[guiPaletteID].col[3] : guiPalettes.palettes[guiPaletteID].col[2]);
+        byte color; 
+        if(focused) color = 7;
+        else if(hovered) color = 0; //TEMPORARY Color ID, changed with new GUI Sprites
+        else color = 3;
+
+        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[color > 3 ? guiPaletteID + 1 : guiPaletteID].col[color > 3 ? color - 4 : color]);
 		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, maxInLength * height, height);
         SDL_RenderDrawRect(renderer, &plane);
 	}
@@ -210,11 +218,9 @@ public:
             return;
         }
 
-        if(mousePressed)
-        {
-            if(mousePos.x >= pos.x && mousePos.x < pos.x + height * maxInLength && mousePos.y >= pos.y && mousePos.y < pos.y + height) focused = true;
-            else focused = false;
-        }
+        if(mousePos.x >= pos.x && mousePos.x < pos.x + height * maxInLength && mousePos.y >= pos.y && mousePos.y < pos.y + height) hovered = true;
+        else hovered = false;
+        if(mousePressed) focused = hovered;
 
         if(!focused)
         {
@@ -261,6 +267,7 @@ public:
     byte guiPaletteID;
     bool visible = true;
     bool pressed = false;
+    bool hovered = false;
     void (*onClick)();
 
     TextButton() { }
@@ -280,13 +287,18 @@ public:
         if(!visible) return;
 
         //Draw Background
-        Panel background(pos, Vec2(text.length() * height, height), pressed ? 3 : 2, guiPaletteID);
+        byte color; 
+        if(pressed) color = 6;
+        else if(hovered) color = 0; //TEMPORARY Color ID, changed with new GUI Sprites
+        else color = 3;
+
+        Panel background(pos, Vec2(text.length() * height, height), color, color > 3 ? guiPaletteID + 1 : guiPaletteID);
         background.draw(renderer, guiPalettes);
 
         //Draw Content
         for(int i = 0; i < text.length(); i++)
         {
-            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(text[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID + 1, height / 16);
         }
     }
 
@@ -297,6 +309,9 @@ public:
         if(!visible) return;
         if(guiLayer == 0) return;
         if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePos.x > pos.x && mousePos.x < pos.x + text.length() * height && mousePos.y > pos.y && mousePos.y < pos.y + height) hovered = true;
+        else hovered = false;
 
         if(mousePressed)
         {
@@ -327,22 +342,29 @@ public:
     byte guiLayer;
     Spritesheet sprites;
     int normalSprite;
+    int hoveredSprite;
     int pressedSprite;
     int normalPaletteID;
+    int hoveredPaletteID;
     int pressedPaletteID;
     bool visible = true;
     bool pressed = false;
+    bool hovered = false;
     void (*onClick)();
 
     SpriteButton() { }
-    SpriteButton(byte iGuiLayer, Vec2 iPos, Spritesheet iSprites, int iNormalSprite, int iPressedSprite, int iNormalPaletteID, int iPressedPaletteID, void (*iOnClick)(), int iHeight = 16)
+    SpriteButton(byte iGuiLayer, Vec2 iPos, Spritesheet iSprites, int iNormalSprite, int iHoveredSprite, int iPressedSprite, int iNormalPaletteID, int iHoveredPaletteID, int iPressedPaletteID, void (*iOnClick)(), int iHeight = 16)
     {
         guiLayer = iGuiLayer;
         pos = iPos;
         sprites = iSprites;
+
         normalSprite = iNormalSprite;
+        hoveredSprite = iHoveredSprite;
         pressedSprite = iPressedSprite;
+
         normalPaletteID = iNormalPaletteID;
+        hoveredPaletteID = iHoveredPaletteID;
         pressedPaletteID = iPressedPaletteID;
 
         height = iHeight;
@@ -353,7 +375,26 @@ public:
     {
         if(!visible) return;
 
-        sprites.drawSprite(renderer, pressed ? pressedSprite : normalSprite, Vec2(pos.x / (height / 16), pos.y / (height / 16)), pal, pressed ? pressedPaletteID : normalPaletteID, height / 16);
+        int sprite;
+        int paletteID;
+
+        if(pressed)
+        {
+            sprite = pressedSprite;
+            paletteID = pressedPaletteID;
+        }
+        else if(hovered)
+        {
+            sprite = hoveredSprite;
+            paletteID = hoveredPaletteID;
+        }
+        else
+        {
+            sprite = normalSprite;
+            paletteID = normalPaletteID;
+        }
+
+        sprites.drawSprite(renderer, sprite, Vec2(pos.x / (height / 16), pos.y / (height / 16)), pal, paletteID, height / 16);
     }
 
     void inHandle(SDL_Event event, bool mousePressed, Vec2 mousePos)
@@ -363,6 +404,9 @@ public:
         if(!visible) return;
         if(guiLayer == 0) return;
         if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePos.x > pos.x && mousePos.x < pos.x + height && mousePos.y > pos.y && mousePos.y < pos.y + height) hovered = true;
+        else hovered = false;
 
         if(mousePressed)
         {
@@ -412,7 +456,7 @@ public:
         for(int i = 0; i < content.length(); i++)
         {
             if(content[i] == '\0') break;
-            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID, height / 16);
+            guiSprites.drawSprite(renderer, char2sid(content[i]), Vec2(pos.x + i * height, pos.y), guiPalettes, guiPaletteID + 1, height / 16);
         }
 	}
 };

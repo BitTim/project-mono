@@ -103,9 +103,18 @@ void init()
 		exit(-1);
 	}
 
+    //TEMPORARY until new GUI Sprites: Swap colors 0 and 1 in palette 1 (Hover and Foreground color)
+    guiPalettes.flipColors(1, 0, 1);
+
+    //TEMPORARY until new GUI Sprites: Swap colors 0 from palette 0 and color 0 from palette 1 (Transparent BG and Hover)
+    SDL_Color tmpcol;
+    tmpcol = guiPalettes.palettes[0].col[0];
+    guiPalettes.palettes[0].col[0] = guiPalettes.palettes[1].col[0];
+    guiPalettes.palettes[1].col[0] = tmpcol;
+
     //Clear the Window
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
+	iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[1]);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
@@ -118,7 +127,7 @@ void init()
 
     cPalettelist.palettes.push_back(cPalette);
 
-    menubarBG = Panel(Vec2(0, 0), Vec2(_SCREENRES.x, 16), 2, 0);
+    menubarBG = Panel(Vec2(0, 0), Vec2(_SCREENRES.x, 16), 3, 0);
     menubar[0] = TextButton(1, Vec2(0, 0), "File", showFileMenu, 0);
     menubar[1] = TextButton(1, Vec2(5 * 16, 0), "Edit", showEditMenu, 0);
     menubar[2] = TextButton(1, Vec2(10 * 16, 0), "About", about, 0);
@@ -144,7 +153,7 @@ void init()
     for(int i = 0; i < 70; i++)
     {
         int y;
-        paletteSelect[i] = ButtonLogic(1, Vec2(2 * 16 + (i - (i >= 35 ? 35 : 0)) * 16, i >= 35 ? 25 * 16 : 20 * 16), Vec2(16, 16 * 4), changeCPalette);        
+        paletteSelect[i] = ButtonLogic(1, Vec2(2 * 16 + (i - (i >= 35 ? 35 : 0)) * 16, i >= 35 ? 25 * 16 : 20 * 16), Vec2(16, 16 * 4), 0, changeCPalette);        
         paletteSelect[i].visible = false;
     }
 
@@ -342,7 +351,7 @@ void update()
 
 void draw()
 {
-    SDL_SetRenderDrawColor(renderer, 0x99, 0x99, 0x99, 0xFF);
+    iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[1]);
     SDL_RenderClear(renderer);
 
     //Draw GUI
