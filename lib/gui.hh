@@ -90,6 +90,7 @@ public:
     byte guiPaletteID;
     bool visible = true;
     bool pressed = false;
+    bool hovered = false;
     void (*onClick)();
 
     ButtonLogic() { }
@@ -107,7 +108,12 @@ public:
 		if(!visible) return;
     
         //Draw Border
-        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[guiPaletteID + 1].col[3]);
+        byte color;
+        if(hovered) color = 6;
+        else if(pressed) color = 7;
+        else color = 4;
+
+        iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[color > 3 ? guiPaletteID + 1 : guiPaletteID].col[color > 3 ? color - 4 : color]);
 		SDL_Rect plane = iSDL_Rect(pos.x, pos.y, size.x, size.y);
         SDL_RenderDrawRect(renderer, &plane);
 	}
@@ -119,6 +125,9 @@ public:
         if(!visible) return;
         if(guiLayer == 0) return;
         if(guiLayer == 1 && primary_visible) return;
+
+        if(mousePos.x > pos.x && mousePos.x < pos.x + size.x && mousePos.y > pos.y && mousePos.y < pos.y + size.y) hovered = true;
+        else hovered = false;
 
         if(mousePressed)
         {
@@ -193,7 +202,7 @@ public:
         //Draw Border
         byte color; 
         if(focused) color = 7;
-        else if(hovered) color = 0; //TEMPORARY Color ID, changed with new GUI Sprites
+        else if(hovered) color = 6;
         else color = 3;
 
         iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[color > 3 ? guiPaletteID + 1 : guiPaletteID].col[color > 3 ? color - 4 : color]);
@@ -288,11 +297,11 @@ public:
 
         //Draw Background
         byte color; 
-        if(pressed) color = 6;
-        else if(hovered) color = 0; //TEMPORARY Color ID, changed with new GUI Sprites
+        if(pressed) color = 7;
+        else if(hovered) color = 6;
         else color = 3;
 
-        Panel background(pos, Vec2(text.length() * height, height), color, color > 3 ? guiPaletteID + 1 : guiPaletteID);
+        Panel background(pos, Vec2(text.length() * height, height), color > 3 ? color - 4 : color, color > 3 ? guiPaletteID + 1 : guiPaletteID);
         background.draw(renderer, guiPalettes);
 
         //Draw Content

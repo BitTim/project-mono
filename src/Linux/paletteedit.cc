@@ -28,7 +28,7 @@ TextBox colorVals[4];
 Label colorValLabels[4];
 
 Panel menubarBG;
-TextButton menubar[3];
+TextButton menubar[2];
 TextButton fileMenu[4];
 TextButton editMenu[3];
 
@@ -65,8 +65,6 @@ void newPalette();
 void removePalette();
 void clearPalette();
 
-void about();
-
 void changeCPalette();
 
 void openFile();
@@ -97,24 +95,15 @@ void init()
 	}
 
     //Load Palettes
-	if(guiPalettes.loadFile("dat/guiPalettes.tcp") == -1)
+	if(guiPalettes.loadFile("dat/guipalettes.tcp") == -1)
 	{
 		printf("[F] Error 201: Failed to load palettelist \"dat/guiPalettes.tcp\"\n");
 		exit(-1);
 	}
 
-    //TEMPORARY until new GUI Sprites: Swap colors 0 and 1 in palette 1 (Hover and Foreground color)
-    guiPalettes.flipColors(1, 0, 1);
-
-    //TEMPORARY until new GUI Sprites: Swap colors 0 from palette 0 and color 0 from palette 1 (Transparent BG and Hover)
-    SDL_Color tmpcol;
-    tmpcol = guiPalettes.palettes[0].col[0];
-    guiPalettes.palettes[0].col[0] = guiPalettes.palettes[1].col[0];
-    guiPalettes.palettes[1].col[0] = tmpcol;
-
     //Clear the Window
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-	iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[1]);
+	iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[0]);
     SDL_RenderClear(renderer);
     SDL_RenderPresent(renderer);
 
@@ -128,9 +117,8 @@ void init()
     cPalettelist.palettes.push_back(cPalette);
 
     menubarBG = Panel(Vec2(0, 0), Vec2(_SCREENRES.x, 16), 3, 0);
-    menubar[0] = TextButton(1, Vec2(0, 0), "File", showFileMenu, 0);
+    menubar[0] = TextButton(1, Vec2(0, 0), "File ", showFileMenu, 0);
     menubar[1] = TextButton(1, Vec2(5 * 16, 0), "Edit", showEditMenu, 0);
-    menubar[2] = TextButton(1, Vec2(10 * 16, 0), "About", about, 0);
 
     fileMenu[0] = TextButton(2, Vec2(0, 1 * 16), "New File    ", newFile, 0);
     fileMenu[1] = TextButton(2, Vec2(0, 2 * 16), "Open File   ", openFileDialog, 0);
@@ -147,8 +135,8 @@ void init()
     dialogPath = TextBox(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 3 * 16), 0, 0, 30, 16);
 
     cancelButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Cancel", cancelDialog, 0);
-    openButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 26 * 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Open", openFile, 0);
-    saveButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 26 * 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Save", saveFile, 0);
+    openButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 27 * 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Open", openFile, 0);
+    saveButton = TextButton(2, Vec2(_SCREENRES.x / 2 - 32 * 16 / 2 + 27 * 16, _SCREENRES.y / 2 - 7 * 16 / 2 + 5 * 16), "Save", saveFile, 0);
 
     for(int i = 0; i < 70; i++)
     {
@@ -252,8 +240,6 @@ void clearPalette()
     for(int i = 0; i < 4; i++) cPalette.col[i] = iSDL_Color((std::stoul(colorVals[i].content, nullptr, 16) & 0xFF000000) >> 24, (std::stoul(colorVals[i].content, nullptr, 16) & 0x00FF0000) >> 16, (std::stoul(colorVals[i].content, nullptr, 16) & 0x0000FF00) >> 8, std::stoul(colorVals[i].content, nullptr, 16) & 0x000000FF);
 }
 
-void about() { }
-
 void changeCPalette() {
     for(int i = 0; i < 4; i++) cPalette.col[i] = iSDL_Color((std::stoul(colorVals[i].content, nullptr, 16) & 0xFF000000) >> 24, (std::stoul(colorVals[i].content, nullptr, 16) & 0x00FF0000) >> 16, (std::stoul(colorVals[i].content, nullptr, 16) & 0x0000FF00) >> 8, std::stoul(colorVals[i].content, nullptr, 16) & 0x000000FF);
     cPalette = cPalettelist.palettes[cSelectorButton];
@@ -339,6 +325,8 @@ void update()
     {
         cSelectorButton = i;
         paletteSelect[i].inHandle(event, mousePressed, mousePos);
+        if(i == cPaletteID) paletteSelect[i].pressed = true;
+        else paletteSelect[i].pressed = false;
     }
 
     for(int i = 0; i < 4; i++) std::replace(colorVals[i].content.begin(), colorVals[i].content.end(), '\0', '0');
@@ -351,7 +339,7 @@ void update()
 
 void draw()
 {
-    iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[1]);
+    iSDL_SetRenderDrawColor(renderer, guiPalettes.palettes[0].col[0]);
     SDL_RenderClear(renderer);
 
     //Draw GUI
@@ -374,7 +362,7 @@ void draw()
         SDL_RenderFillRect(renderer, &tmp_rect);
     }
 
-    //Draw Palletelist
+    //Draw Palettelist colors
     for(int n = 0; n < cPalettelist.palettes.size(); n++)
     {
         for(int i = 0; i < 4; i++)
@@ -384,7 +372,9 @@ void draw()
             SDL_RenderFillRect(renderer, &tmp_rect);
         }
     }
-    paletteSelect[cPaletteID].draw(renderer, guiPalettes);
+
+    //Draw Palettelist selectors
+    for(int i = 0; i < 70; i++) paletteSelect[i].draw(renderer, guiPalettes);
 
     //Draw dialog
     dialogBG.draw(renderer, guiPalettes);
