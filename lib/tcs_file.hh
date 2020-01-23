@@ -51,6 +51,36 @@ public:
 		return 0;
 	}
 
+	void saveFile(const char* path)
+	{
+		char tmp_word[2];
+		char tmp_dword[4];
+		Sprite tmp_sprite;
+
+		std::ofstream sprite_file(path, std::oftsream::binary);
+		if(!sprite_file) return;
+
+		tmp_word[0] = 0x54;
+		tmp_word[1] = 0x53;
+		sprite_file.write(tmp_word, 2);
+
+		tmp_word[0] = nSprites & 0xFF;
+		tmp_word[1] = (nSprites >> 8) & 0xFF;
+		sprite_file.write(tmp_word, 2);
+
+		for(int n = 0; n < nSprites; n++)
+		{
+			for(int i = 0; i < 16; i++)
+			{
+				tmp_dword[0] = (sprite_data[n].data[i] >> 24) & 0xFF;
+				tmp_dword[1] = (sprite_data[n].data[i] >> 16) & 0xFF;
+				tmp_dword[2] = (sprite_data[n].data[i] >> 8) & 0xFF;
+				tmp_dword[3] = (sprite_data[n].data[i] >> 0) & 0xFF;
+				sprite_file.write(tmp_dword, 4);
+			}
+		}
+	}
+
 	void drawSprite(SDL_Renderer* renderer, int id, Vec2 pos, Palettelist pal, word cPalette, int pixelscale = _PIXELSCALE)
 	{
 		for(int y = 0; y < 16; y++)
